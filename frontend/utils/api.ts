@@ -1,0 +1,33 @@
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+
+
+// ngrok setup:
+// 1. Ensure your backend is running first: `npm run dev` (must be on port 5000)
+// 2. Open a NEW, separate terminal window and run: `ngrok http 5000`
+// 3. Copy the "Forwarding" URL that starts with "https://" (e.g., https://xxxx.ngrok-free.dev)
+// 4. Paste it below, making sure to keep "/api" at the very end.
+// Note: The ngrok URL changes EVERY TIME you restart it. You must update this line each time!
+// Do NOT use 'localhost' because the phone emulator treats that as itself.
+const API_BASE_URL = 'https://lantern-unwrapped-handshake.ngrok-free.dev/api'; 
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: 10000,
+});
+
+// This automatically attaches the JWT token to every request
+api.interceptors.request.use(
+    async (config) => {
+        const token = await SecureStore.getItemAsync('userToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+export default api;

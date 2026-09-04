@@ -3,6 +3,8 @@
 // and when data changes all screeen update automtically
 
 import { create } from 'zustand';
+import * as SecureStore from 'expo-secure-store';
+import api from '../utils/api';
 
 import type { Transaction } from '../types/Transaction';
 import type { Category } from '../types/Category';
@@ -19,13 +21,17 @@ import { ThemeColors } from '../constants/theme';
 interface MoniVoStore {
     // -State (the actual data)
     user: User | null; //the logged inuser
+    isLoadingAuth: boolean; // NEW: To show loading screen while checking token
     transactions: Transaction[]; // every ecen and income entry (e.g., buying airtime, receiving salary)
     categories: Category[]; // user definable categories built in + user cretaed
     budgets: Budget[]; //spending limits for each category
-    wallets: Wallet[];    // all wallets (cash, bank telebirr)
+    wallets: Wallet[];    // all wallets (cash, bank, telebirr)
 
 
     // Action (function that change data)
+    checkAuth: () => Promise<void>; // NEW: Checks if user is logged in on app start
+    login: (email: string, password: string) => Promise<void>; // NEW: Real login
+    register: (name: string, email: string, password: string) => Promise<void>; // NEW: Real register
     setUser: (user: User | null) => void;
     addTransaction:
     (tx: Omit<Transaction, 'id' | 'createdAt'>) => void;
@@ -38,7 +44,7 @@ interface MoniVoStore {
     deleteBudget: (id: string) => void;
     addWallet: (wallet: Omit<Wallet, 'id'>) => void;
     deleteWallet: (id: string) => void;
-    logOut: () => void;
+    logOut: () => Promise<void>; // UPDATED: Now async to clear token
 
     // Getters (computed values => from the states above)
     totalBalance: () => number; //all money total across all wallets
@@ -58,10 +64,63 @@ interface MoniVoStore {
 
 const useMoniVoStore = create<MoniVoStore>((set, get) => ({
     user: null,
+    isLoadingAuth: true, // NEW: Start loading until we check the token
     transactions: dummyTransactions,   // Start with our fake data so screens aren't empty
     categories: defaultCategories,     // Start with all the built-in categories
     budgets: [],
     wallets: [defaultWallet],
+    theme: 'light',
+
+    // authentication actions
+    checkAuth: async () => {
+        // Set loading to true while checking for existing token
+        set({ isLoadingAuth: true });
+        try {
+            // Get saved token from secure storage
+            const token = await SecureStore.getItemAsync('userToken');
+            if (token) {
+                // Token exists, verify it with backend
+                const { data } = await api.get('/auth/me');
+                set({ user: data, isLoadingAuth: false });
+            } else {
+                // No token, user is not logged in
+                set({ isLoadingAuth: false });
+            }
+        } catch (error) {
+            // Token is invalid or expired, clear it
+            await SecureStore.deleteItemAsync('userToken');
+            set({ isLoadingAuth: false });
+        }
+    },
+
+    login: async (email: string, password: string) => {
+        // Send credentials to backend and get user data + token
+        const { data } = await api.post('/auth/login', { email, password });
+        // Save the new token securely
+        await SecureStore.setItemAsync('userToken', data.token);
+        // Update user state
+        set({ user: data });
+    },
+
+    register: async (name: string, email: string, password: string) => {
+        // Send registration data to backend
+        const { data } = await api.post('/auth/register', { name, email, password });
+        // Save the token
+        await SecureStore.setItemAsync('userToken', data.token);
+        // Update user state
+        set({ user: data });
+    },
+
+    logOut: async () => {
+        // Remove token from secure storage
+        await SecureStore.deleteItemAsync('userToken');
+        // Clear user and reset app data
+        set({
+            user: null,
+            transactions: dummyTransactions,
+            budgets: [],
+        });
+    },
 
     // Actions Implementaions
     setUser: (user) => set({ user }),
@@ -125,11 +184,6 @@ const useMoniVoStore = create<MoniVoStore>((set, get) => ({
         wallets: state.wallets.filter((wallet) => wallet.id !== id),
     })),
 
-    logOut: () => set({
-        user: null,
-        transactions: dummyTransactions,
-        budgets: [],
-    }),
     // Getter implenataions
     // get() gives us access to the current state inside these functions
     totalIncome: () => {
@@ -158,7 +212,7 @@ const useMoniVoStore = create<MoniVoStore>((set, get) => ({
                 return acc;
             }, {} as Record<string, number>);
     },
-    theme: 'light',
+
     toggleTheme: () => set((state) => ({
         theme: state.theme === 'light' ? 'dark' : 'light',
     })),
