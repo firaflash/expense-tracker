@@ -28,10 +28,6 @@
     },
     "plugins": [
       "expo-font",
-<<<<<<< HEAD
-      "expo-secure-store",
-=======
->>>>>>> 3c97622 (Fix: Fixed the expo version to 57.0.2)
       "expo-status-bar"
     ]
   }
