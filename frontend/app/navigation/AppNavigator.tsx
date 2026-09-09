@@ -18,10 +18,10 @@ import RegisterScreen from '../(auth)/RegisterScreen';
 import HomeScreen from '../(app)/HomeScreen';
 import TransactionScreen from '../(app)/TransactionScreen';
 import BudgetsScreen from '../(app)/BudgetsScreen';
-// ─────────────────────────────────────────────────────────────────────────────
+import AnalyticsScreen from '../(app)/AnalyticsScreen';
+
 // TYPESCRIPT: Define what screens exist in each navigator
 // This tells TypeScript the valid screen names so you get autocomplete later
-// ─────────────────────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
     Onboarding: undefined;  // undefined = this screen takes no params
     Login: undefined;
@@ -42,14 +42,13 @@ const AuthStack = createStackNavigator<AuthStackParamList>();
 // createBottomTabNavigator() creates the bottom tab bar you see in most apps
 const AppTabs = createBottomTabNavigator<AppTabParamList>();
 
-// ─────────────────────────────────────────────────────────────────────────────
 // AUTH STACK — shown when user is NOT logged in
-// ─────────────────────────────────────────────────────────────────────────────
 function AuthNavigator() {
     const colors = useTheme();
 
     return (
         <AuthStack.Navigator
+            id="AuthStack"
             screenOptions={{
                 headerShown: false,  // We design our own headers — hide the default one
                 cardStyle: { backgroundColor: colors.background },
@@ -64,14 +63,13 @@ function AuthNavigator() {
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // APP TABS — shown when user IS logged in
-// ─────────────────────────────────────────────────────────────────────────────
 function AppTabNavigator() {
     const colors = useTheme();
 
     return (
         <AppTabs.Navigator
+            id="AppTabs"
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarStyle: {
@@ -94,6 +92,7 @@ function AppTabNavigator() {
                     if (route.name === 'Transactions') return <ArrowLeftRight size={22} color={color} />;
                     if (route.name === 'Budgets') return <PiggyBank size={22} color={color} />;
                     if (route.name === 'Analytics') return <BarChart size={22} color={color} />;
+                    return null; // fallback — prevents undefined crash
                 },
             })}
         >
@@ -111,16 +110,15 @@ function AppTabNavigator() {
             />
             <AppTabs.Screen
                 name="Analytics"
-                component={HomeScreen}  // ← temporary placeholder
+                component={AnalyticsScreen}  // ← temporary placeholder
                 options={{ tabBarLabel: 'Analytics' }}
             />
         </AppTabs.Navigator>
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // ROOT NAVIGATOR — The main export, decides Auth vs App
-// ─────────────────────────────────────────────────────────────────────────────
 export default function AppNavigator() {
     // Read the user from Zustand — if null = not logged in
     const user = useMoniVoStore((state) => state.user);
