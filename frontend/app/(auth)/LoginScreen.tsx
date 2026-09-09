@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import {
+<<<<<<< HEAD
   View,
   Text,
   TextInput,
@@ -19,6 +20,24 @@ import useMoniVoStore from "../../store/useMoniVoStore";
 import PrimaryButton from "../../components/common/PrimaryButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AuthStackParamList } from "../navigation/AppNavigator";
+=======
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    KeyboardAvoidingView,  // Moves the screen up when keyboard appears
+    Platform,             // Lets us write different behavior for iOS vs Android
+    ScrollView,           // Allows scrolling if the keyboard pushes content off screen
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Eye, EyeOff } from 'lucide-react-native';
+import useTheme from '../../hooks/useTheme';
+import useMoniVoStore from '../../store/useMoniVoStore';
+import PrimaryButton from '../../components/common/buttons/PrimaryButton';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { AuthStackParamList } from '../navigation/AppNavigator';
+>>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 
 type Props = {
   navigation: StackNavigationProp<AuthStackParamList, "Login">;

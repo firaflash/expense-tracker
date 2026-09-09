@@ -14,10 +14,16 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Eye, EyeOff } from "lucide-react-native";
 import useTheme from "../../hooks/useTheme";
+<<<<<<< HEAD
 import PrimaryButton from "../../components/common/PrimaryButton";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../navigation/AppNavigator";
 import useMoniVoStore from "../../store/useMoniVoStore"; // NEW: Import store
+=======
+import PrimaryButton from '../../components/common/buttons/PrimaryButton';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '../navigation/AppNavigator';
+>>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 
 type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, "Register">;
