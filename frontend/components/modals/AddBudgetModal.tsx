@@ -29,11 +29,11 @@ import useTheme from '../../hooks/useTheme';
 import useMoniVoStore from '../../store/useMoniVoStore';
 
 // ── REUSABLE COMPONENTS ──────────────────────────────────
-import CloseButton from '../common/CloseButton';
-import AmountInput from '../common/AmountInput';
-import CategoryPicker from '../common/CategoryPicker';
-import PeriodSelector from '../common/PeriodSelector';
-import PrimaryButton from '../common/PrimaryButton';
+import CloseButton from '../common/buttons/CloseButton';
+import AmountInput from '../common/inputs/AmountInput';
+import CategoryPicker from '../common/selectors/CategoryPicker';
+import PeriodSelector from '../common/selectors/PeriodSelector';
+import PrimaryButton from '../common/buttons/PrimaryButton';
 
 // types
 interface AddBudgetModalProps {
@@ -223,7 +223,11 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
             flex: 1,
         },
         backdrop: {
-            ...StyleSheet.absoluteFillObject,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
             backgroundColor: colors.overlay,
         },
         keyboardLayer: {
