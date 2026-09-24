@@ -1,34 +1,25 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import app from "./app.js";
-
+// src/server.js
+import app from './app.js';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI;
-
-
 
 const startServer = async () => {
-  console.log("Starting server...", `PORT: ${PORT}`, `MONGO_URI: ${MONGO_URI}`);
-  try{
-    mongoose
-      .connect(MONGO_URI )
-      .then(() => {
-        console.log("✅ MongoDB Connected Successfully");
-        app.listen(PORT, () => {
-          console.log(`🚀 Server running on port ${PORT}`);
-        });
-      })
-      .catch((err) => {
-        console.error("❌ MongoDB Connection Error:", err);
-        process.exit(1);
-      });
-  }catch(err){
-    console.error("❌ Server Error:", err);
+  try {
+    console.log(`🔌 Connecting to MongoDB...`);
+    await connectDB();
+    console.log('✅ MongoDB Connected Successfully');
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`   http://localhost:${PORT}/api/health`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err.message);
     process.exit(1);
   }
+};
 
-
-}
-export default startServer;
+startServer();

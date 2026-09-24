@@ -1,42 +1,69 @@
-import express from "express";
-import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
-import startServer from "./server.js";
+// src/app.js
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
 
+// --- CORS ---
 const allowedOrigins = [
-  'http://localhost:3000',      // web
-  'http://localhost:8081',      // Expo web
-  'http://localhost:19006',     // Expo web alt
-  'exp://127.0.0.1:19000',      // Expo Go
-  'exp://192.168.x.x:19000',    // Expo on device — replace with your LAN IP
-  //ADD any other origins you want to allow here for the mobile experiacnce use grok to host your local server and add the ngrok url here
+  'http://localhost:3000',
+  'http://localhost:8081',
+  'http://localhost:19006',
+  'exp://127.0.0.1:19000',
+  // add your ngrok URL here when sharing:
+  // 'https://lantern-unwrapped-handshake.ngrok-free.dev',
 ];
 
-// middleware
-app.use(  cors({
+app.use(
+  cors({
     origin: (origin, callback) => {
+      // allow no-origin (Postman, native RN, curl)
       if (!origin) return callback(null, true);
+
+      // allow anything in dev if you want to stop fighting CORS
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  })
+);
 
-
+// --- Body parsers ---
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// routes
-app.use("/api/auth", authRoutes);
+// --- Logging ---
+// if (process.env.NODE_ENV !== 'production') {
+//   app.use(morgan('dev'));
+// }
 
-// test route
-app.get("/", (req, res) => {
-  res.json({ message: "MoniVo API is running..." });
+// --- Health check ---
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    owner: 'FLASH DEVS',
+    time: new Date().toISOString(),
+  });
 });
 
-await startServer();
+app.get('/', (req, res) => {
+  res.json({ message: 'MoniVo API is running...' });
+});
+
+// --- Routes ---
+app.use('/api/auth', authRoutes);
+// app.use('/api/transactions', transactionRoutes);
+// app.use('/api/categories', categoryRoutes);
+// app.use('/api/analytics', analyticsRoutes);
+
+// --- Error handling (MUST be last) ---
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
