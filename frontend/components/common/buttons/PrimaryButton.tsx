@@ -1,21 +1,4 @@
-<<<<<<< HEAD:frontend/components/common/PrimaryButton.tsx
-import React from "react";
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-} from "react-native";
-import useTheme from "../../hooks/useTheme";
 
-// 1. Add 'disabled' to the props interface
-export interface PrimaryButtonProps {
-  label: string;
-  onPress: () => void;
-  style?: ViewStyle;
-  disabled?: boolean; // <-- NEW: Allows the button to be disabled
-=======
 // components/common/PrimaryButton.tsx
 //
 // A full-width, rounded, bold button used across the entire app.
@@ -26,7 +9,7 @@ export interface PrimaryButtonProps {
 // - OnboardingScreen  → "Next" / "Get Started"
 // - AddTransactionModal → "Add Income" / "Add Expense"
 // - AddBudgetModal    → "Create Budget"
-// 
+//
 // PROPS:
 // - label: the text displayed on the button
 // - onPress: function to call when tapped
@@ -34,18 +17,17 @@ export interface PrimaryButtonProps {
 // - style?: optional extra styles (e.g. marginTop, width)
 
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, } from 'react-native';
-import useTheme from '../../../hooks/useTheme';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
+import useTheme from "../../../hooks/useTheme";
 
 // Props interface — defines what the parent can pass to this component
 interface PrimaryButtonProps {
-    label: string;
-    onPress: () => void;
-    color?: string;       // Optional — defaults to colors.champagne
-    style?: ViewStyle;    // Optional — extra styles from the parent
->>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049:frontend/components/common/buttons/PrimaryButton.tsx
+  label: string;
+  onPress: () => void;
+  color?: string;       // Optional — defaults to colors.champagne
+  style?: ViewStyle;    // Optional — extra styles from the parent
+  disabled?: boolean;
 }
-
 export default function PrimaryButton({
   label,
   onPress,

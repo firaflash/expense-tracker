@@ -1,43 +1,24 @@
 // the login form screen. User enter emai l+ passwords to access their account
-
 import React, { useState } from "react";
 import {
-<<<<<<< HEAD
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView, // Moves the screen up when keyboard appears
-  Platform, // Lets us write different behavior for iOS vs Android
-  ScrollView, // Allows scrolling if the keyboard pushes content off screen
-  Alert, // Show error messages
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
 } from "react-native";
+
 import { StatusBar } from "expo-status-bar";
 import { Eye, EyeOff } from "lucide-react-native";
 import useTheme from "../../hooks/useTheme";
 import useMoniVoStore from "../../store/useMoniVoStore";
-import PrimaryButton from "../../components/common/PrimaryButton";
+import PrimaryButton from "../../components/common/buttons/PrimaryButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AuthStackParamList } from "../navigation/AppNavigator";
-=======
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    KeyboardAvoidingView,  // Moves the screen up when keyboard appears
-    Platform,             // Lets us write different behavior for iOS vs Android
-    ScrollView,           // Allows scrolling if the keyboard pushes content off screen
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { Eye, EyeOff } from 'lucide-react-native';
-import useTheme from '../../hooks/useTheme';
-import useMoniVoStore from '../../store/useMoniVoStore';
-import PrimaryButton from '../../components/common/buttons/PrimaryButton';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { AuthStackParamList } from '../navigation/AppNavigator';
->>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 
 type Props = {
   navigation: StackNavigationProp<AuthStackParamList, "Login">;
@@ -104,8 +85,8 @@ export default function LoginScreen({ navigation }: Props) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        // "handled" means tapping outside the keyboad dismmes it
-        // without accidentally triggering other button
+      // "handled" means tapping outside the keyboad dismmes it
+      // without accidentally triggering other button
       >
         {/* Header */}
         <View style={styles.header}>
@@ -152,7 +133,7 @@ export default function LoginScreen({ navigation }: Props) {
               <TouchableOpacity
                 style={styles.eyeButton}
                 onPress={() => setShowPassword(!showPassword)}
-                // Tou
+              // Tou
               >
                 {showPassword ? (
                   <EyeOff size={20} color={colors.textSecondary} />
