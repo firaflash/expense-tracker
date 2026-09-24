@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const generateToken = (id) => {
+  console.log("Generating token for user ID:", process.env.JWT_SECRET);
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
@@ -21,6 +22,7 @@ export const registerUser = async (req, res) => {
       email: user.email,
       token: generateToken(user._id),
     });
+    console.log("User registered successfully:", user);
   } catch (error) {
     console.error(" REGISTRATION ERROR:", error);
 
