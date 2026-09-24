@@ -14,7 +14,7 @@ import type { User } from '../types/User';
 
 
 import { defaultCategories } from '../constants/defaultCategories';
-import { defaultWallet, dummyTransactions } from '../utils/dummyData';
+import { defaultWallet, dummyTransactions, dummyBudgets } from '../utils/dummyData';
 import { ThemeColors } from '../constants/theme';
 
 // 1 we define the sape of the store 
@@ -67,7 +67,7 @@ const useMoniVoStore = create<MoniVoStore>((set, get) => ({
     isLoadingAuth: true, // NEW: Start loading until we check the token
     transactions: dummyTransactions,   // Start with our fake data so screens aren't empty
     categories: defaultCategories,     // Start with all the built-in categories
-    budgets: [],
+    budgets: dummyBudgets,
     wallets: [defaultWallet],
     theme: 'light',
 
@@ -118,7 +118,7 @@ const useMoniVoStore = create<MoniVoStore>((set, get) => ({
         set({
             user: null,
             transactions: dummyTransactions,
-            budgets: [],
+            budgets: dummyBudgets,
         });
     },
 

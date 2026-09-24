@@ -67,10 +67,25 @@ export default function AnalyticsScreen() {
     const categories = useMoniVoStore((state) => state.categories);
     const totalIncome = useMoniVoStore((state) => state.totalIncome);
     const totalExpenses = useMoniVoStore((state) => state.totalExpenses);
+    const budgets = useMoniVoStore((state) => state.budgets);
 
     // ── HELPER ───────────────────────────────────────────
     const getCategoryName = (id: string) =>
         categories.find((cat) => cat.id === id)?.name ?? 'Unknown';
+    //  budgets list data
+    const budgetList = useMemo(() => {
+        return budgets.map((b) => {
+            const spent = transactions
+                .filter((tx) => tx.type === 'DEBIT' && tx.categoryId === b.categoryId)
+                .reduce((acc, tx) => acc + tx.amount, 0)
+            return {
+                id: b.id,
+                categoryName: getCategoryName(b.categoryId),
+                spent,
+                limit: b.limitAmount
+            };
+        });
+    }, [budgets, transactions, getCategoryName])
 
     // ── COMPUTE: chart data based on period ──────────────
     // Groups expenses into time buckets for the line chart.
@@ -218,6 +233,30 @@ export default function AnalyticsScreen() {
                     <Text style={styles.sectionTitle}>Top Spendings</Text>
                     <TopSpendingList data={topSpending} />
                 </View>
+                {/* BUDGETS LIST */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Budgets</Text>
+                    <View style={styles.budgetCard}>
+                        {budgetList.map((item, index) => (
+                            <View
+                                key={item.id}
+                                style={[
+                                    styles.budgetRow,
+                                    index < budgetList.length - 1 && styles.budgetRowBorder,
+                                ]}
+                            >
+                                <Text style={styles.budgetName}>{item.categoryName}</Text>
+                                <Text style={styles.budgetAmount}>
+                                    ETB {item.spent.toLocaleString()} / ETB {item.limit.toLocaleString()}
+                                </Text>
+                            </View>
+                        ))}
+                        {budgetList.length === 0 && (
+                            <Text style={styles.emptyText}>No budgets created yet</Text>
+                        )}
+                    </View>
+                </View>
+
             </ScrollView>
         </SafeAreaView>
     );
@@ -260,4 +299,38 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
             fontWeight: '700',
             color: colors.textPrimary,
         },
+        budgetCard: {
+            backgroundColor: colors.surface,
+            borderRadius: 16,
+            paddingHorizontal: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        budgetRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: 14,
+        },
+        budgetRowBorder: {
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        budgetName: {
+            fontSize: 15,
+            fontWeight: '600',
+            color: colors.textPrimary,
+        },
+        budgetAmount: {
+            fontSize: 14,
+            fontWeight: '600',
+            color: colors.textSecondary,
+        },
+        emptyText: {
+            fontSize: 14,
+            color: colors.textMuted,
+            paddingVertical: 16,
+            textAlign: 'center',
+        },
+
     });

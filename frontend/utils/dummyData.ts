@@ -3,6 +3,7 @@
 
 import { Transaction } from '../types/Transaction';
 import { Wallet } from '../types/Wallet';
+import { Budget } from '../types/Budget';
 
 // One default wallet to start with
 export const defaultWallet: Wallet = {
@@ -27,4 +28,80 @@ export const dummyTransactions: Transaction[] = [
     { id: 'tx-8', amount: 200, type: 'DEBIT', categoryId: 'cat-7', note: 'Skincare products', date: '2026-08-06T15:00:00Z', status: 'CLEARED', walletId: 'wallet-1', createdAt: '2026-08-06T15:00:00Z' },
     { id: 'tx-9', amount: 1500, type: 'CREDIT', categoryId: 'cat-18', note: 'Freelance payment', date: '2026-08-05T11:00:00Z', status: 'CLEARED', walletId: 'wallet-1', createdAt: '2026-08-05T11:00:00Z' },
     { id: 'tx-10', amount: 300, type: 'DEBIT', categoryId: 'cat-5', note: 'Programming books', date: '2026-08-04T14:00:00Z', status: 'CLEARED', walletId: 'wallet-1', createdAt: '2026-08-04T14:00:00Z' },
+];
+
+// Realistic fake budgets matching the expense categories and date range of dummy transactions (August 2026)
+export const dummyBudgets: Budget[] = [
+    {
+        id: 'budget-1',
+        categoryId: 'cat-4', // Groceries (spent: ETB 800) -> 66.7% (Yellow warning)
+        limitAmount: 1200,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-2',
+        categoryId: 'cat-1', // Gas (spent: ETB 450) -> 90.0% (Red critical / danger)
+        limitAmount: 500,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-3',
+        categoryId: 'cat-3', // Lunch (spent: ETB 250) -> 31.3% (Green safe)
+        limitAmount: 800,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-4',
+        categoryId: 'cat-6', // Internet Package (spent: ETB 350) -> 70.0% (Yellow warning)
+        limitAmount: 500,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-5',
+        categoryId: 'cat-8', // Subscription (spent: ETB 199) -> 99.5% (Red critical / near limit)
+        limitAmount: 200,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-6',
+        categoryId: 'cat-2', // Breakfast (spent: ETB 120) -> 30.0% (Green safe)
+        limitAmount: 400,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-7',
+        categoryId: 'cat-5', // Books (spent: ETB 300) -> 100.0% (Red critical / limit reached)
+        limitAmount: 300,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
+    {
+        id: 'budget-8',
+        categoryId: 'cat-7', // Skincare (spent: ETB 200) -> 66.7% (Yellow warning)
+        limitAmount: 300,
+        startDate: '2026-08-01',
+        endDate: '2026-08-31',
+        recurring: 'monthly',
+        alertThreshold: 0.8,
+    },
 ];
