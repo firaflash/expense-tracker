@@ -8,29 +8,19 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Home, ArrowLeftRight, PiggyBank, BarChart } from "lucide-react-native";
-
+import { SafeAreaProvider, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import useTheme from "../../hooks/useTheme";
 import useMoniVoStore from "../../store/useMoniVoStore";
 
 // Import all screens
-<<<<<<< HEAD
 import OnboardingScreen from "../(auth)/OnboardinScree"; // ← keep your typo filename
 import LoginScreen from "../(auth)/LoginScreen";
 import RegisterScreen from "../(auth)/RegisterScreen";
 import HomeScreen from "../(app)/HomeScreen";
 import TransactionScreen from "../(app)/TransactionScreen";
 import BudgetsScreen from "../(app)/BudgetsScreen";
-// ─────────────────────────────────────────────────────────────────────────────
-=======
-import OnboardingScreen from '../(auth)/OnboardinScree'; // ← keep your typo filename
-import LoginScreen from '../(auth)/LoginScreen';
-import RegisterScreen from '../(auth)/RegisterScreen';
-import HomeScreen from '../(app)/HomeScreen';
-import TransactionScreen from '../(app)/TransactionScreen';
-import BudgetsScreen from '../(app)/BudgetsScreen';
-import AnalyticsScreen from '../(app)/AnalyticsScreen';
+import AnalyticsScreen from "../(app)/AnalyticsScreen";
 
->>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 // TYPESCRIPT: Define what screens exist in each navigator
 // This tells TypeScript the valid screen names so you get autocomplete later
 export type AuthStackParamList = {
@@ -57,9 +47,9 @@ const AppTabs = createBottomTabNavigator<AppTabParamList>();
 function AuthNavigator() {
   const colors = useTheme();
 
-<<<<<<< HEAD
   return (
     <AuthStack.Navigator
+      id="AuthStack"
       screenOptions={{
         headerShown: false, // We design our own headers — hide the default one
         cardStyle: { backgroundColor: colors.background },
@@ -72,39 +62,22 @@ function AuthNavigator() {
       <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>
   );
-=======
-    return (
-        <AuthStack.Navigator
-            id="AuthStack"
-            screenOptions={{
-                headerShown: false,  // We design our own headers — hide the default one
-                cardStyle: { backgroundColor: colors.background },
-                // cardStyle sets the background color during transitions
-            }}
-        >
-            {/* The first screen listed here is the one shown first (Onboarding) */}
-            <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
-            <AuthStack.Screen name="Login" component={LoginScreen} />
-            <AuthStack.Screen name="Register" component={RegisterScreen} />
-        </AuthStack.Navigator>
-    );
->>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 }
 
 // APP TABS — shown when user IS logged in
 function AppTabNavigator() {
   const colors = useTheme();
-
-<<<<<<< HEAD
+  const insets = useSafeAreaInsets(); // gets bottom isntes in real time
   return (
     <AppTabs.Navigator
+      id="AppTabs"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 61,
+          height: 60 + insets.bottom,
           paddingBottom: 8,
         },
         tabBarActiveTintColor: colors.champagne, // Gold for selected tab
@@ -123,6 +96,7 @@ function AppTabNavigator() {
             return <PiggyBank size={22} color={color} />;
           if (route.name === "Analytics")
             return <BarChart size={22} color={color} />;
+          return null; // fallback — prevents undefined crash
         },
       })}
     >
@@ -135,66 +109,16 @@ function AppTabNavigator() {
       />
       <AppTabs.Screen
         name="Budgets"
-        component={BudgetsScreen} // ← temporary placeholder
+        component={BudgetsScreen}
         options={{ tabBarLabel: "Budgets" }}
       />
       <AppTabs.Screen
         name="Analytics"
-        component={HomeScreen} // ← temporary placeholder
+        component={AnalyticsScreen}
         options={{ tabBarLabel: "Analytics" }}
       />
     </AppTabs.Navigator>
   );
-=======
-    return (
-        <AppTabs.Navigator
-            id="AppTabs"
-            screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarStyle: {
-                    backgroundColor: colors.surface,
-                    borderTopColor: colors.border,
-                    borderTopWidth: 1,
-                    height: 61,
-                    paddingBottom: 8,
-                },
-                tabBarActiveTintColor: colors.champagne,    // Gold for selected tab
-                tabBarInactiveTintColor: colors.textSecondary,      // Gray for unselected tabs
-                tabBarLabelStyle: {
-                    fontSize: 11,
-                    fontWeight: '500',
-                },
-                // tabBarIcon renders the icon for each tab
-                tabBarIcon: ({ color, size }) => {
-                    // route.name is the name we gave the screen ("Home", "Transactions", etc.)
-                    if (route.name === 'Home') return <Home size={22} color={color} />;
-                    if (route.name === 'Transactions') return <ArrowLeftRight size={22} color={color} />;
-                    if (route.name === 'Budgets') return <PiggyBank size={22} color={color} />;
-                    if (route.name === 'Analytics') return <BarChart size={22} color={color} />;
-                    return null; // fallback — prevents undefined crash
-                },
-            })}
-        >
-            <AppTabs.Screen name="Home" component={HomeScreen} />
-            {/* Placeholder components for tabs we haven't built yet */}
-            <AppTabs.Screen
-                name="Transactions"
-                component={TransactionScreen}
-                options={{ tabBarLabel: 'Transactions' }}
-            />
-            <AppTabs.Screen
-                name="Budgets"
-                component={BudgetsScreen}  // ← temporary placeholder
-                options={{ tabBarLabel: 'Budgets' }}
-            />
-            <AppTabs.Screen
-                name="Analytics"
-                component={AnalyticsScreen}  // ← temporary placeholder
-                options={{ tabBarLabel: 'Analytics' }}
-            />
-        </AppTabs.Navigator>
-    );
->>>>>>> 29735b4c290ec06da3d99b8a99bed7e58a8d6049
 }
 
 
