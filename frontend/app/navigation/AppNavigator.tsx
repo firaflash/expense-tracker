@@ -3,7 +3,7 @@
 // It decides which stack of screens to show based on whether the user is logged in.
 
 import React from "react";
-import { View, ActivityIndicator } from "react-native"; // new for activity
+import { View, ActivityIndicator, Platform } from "react-native"; // new for activity
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -77,7 +77,9 @@ function AppTabNavigator() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 60 + insets.bottom,
+          height: Platform.OS === 'ios'
+            ? (insets.bottom > 0 ? 50 + insets.bottom : 60)
+            : 60 + insets.bottom,
           paddingBottom: 8,
         },
         tabBarActiveTintColor: colors.champagne, // Gold for selected tab
