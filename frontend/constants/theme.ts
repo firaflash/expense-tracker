@@ -18,6 +18,11 @@ export interface ThemeColors {
     cardBorder: string;     // Subtle card borders
     overlay: string;        // Modal backdrop
     statusBar: 'light' | 'dark';  // Status bar text color
+    cardGlassFrom: string;  // Glass card gradient stop 1
+    cardGlassVia: string;   // Glass card gradient stop 2
+    cardGlassTo: string;    // Glass card gradient stop 3
+    cardChipLine: string;   // Chip line color on the card
+    cardGlow: string;       // Glass catch-light / top highlight
 }
 
 // dark theme our original navy + gold)
@@ -36,6 +41,11 @@ export const darkTheme: ThemeColors = {
     cardBorder: '#8F754830',
     overlay: 'rgba(0, 0, 0, 0.55)',
     statusBar: 'light',
+    cardGlassFrom: 'rgba(16,22,40,0.95)',
+    cardGlassVia: 'rgba(8,13,24,0.98)',
+    cardGlassTo: 'rgba(5,8,18,1)',
+    cardChipLine: 'rgba(0,0,0,0.25)',
+    cardGlow: 'rgba(255,255,255,0.04)',
 };
 // lightmode clenat white + gold
 export const lightTheme: ThemeColors = {
@@ -53,4 +63,9 @@ export const lightTheme: ThemeColors = {
     cardBorder: '#D4BC7C30',
     overlay: 'rgba(0, 0, 0, 0.35)',
     statusBar: 'dark',
+    cardGlassFrom: 'rgba(255,255,255,0.85)',
+    cardGlassVia: 'rgba(248,246,240,0.92)',
+    cardGlassTo: 'rgba(240,236,226,0.95)',
+    cardChipLine: 'rgba(255,255,255,0.5)',
+    cardGlow: 'rgba(255,255,255,0.6)',
 };
