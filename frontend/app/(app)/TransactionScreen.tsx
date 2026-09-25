@@ -332,7 +332,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>) => StyleSheet.create(
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 18,
-        paddingTop: 14,
+        paddingTop: 2,
         paddingBottom: 12,
     },
 

@@ -178,7 +178,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>) => StyleSheet.create(
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 10,
-        paddingTop: 16,
+        paddingTop: 2,
         paddingBottom: 12,
     },
 

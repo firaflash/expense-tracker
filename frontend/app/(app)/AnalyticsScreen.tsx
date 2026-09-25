@@ -273,7 +273,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
         },
         header: {
             paddingHorizontal: 10,
-            paddingTop: 16,
+            paddingTop: 2,
             paddingBottom: 12,
         },
         headerTitle: {

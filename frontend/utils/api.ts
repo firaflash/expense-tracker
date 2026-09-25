@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 // 4. Paste it below, making sure to keep "/api" at the very end.
 // Note: The ngrok URL changes EVERY TIME you restart it. You must update this line each time!
 // Do NOT use 'localhost' because the phone emulator treats that as itself.
-const API_BASE_URL = 'https://lantern-unwrapped-handshake.ngrok-free.dev/api'; 
+const API_BASE_URL = 'https://dandruff-revolt-matriarch.ngrok-free.dev/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
