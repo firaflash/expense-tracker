@@ -36,7 +36,7 @@ export default function HomeScreen() {
     return (
         <SafeAreaView
             style={styles.safeArea}
-            edges={['top', 'left', 'right', 'bottom']}
+            edges={['top', 'left', 'right']}
         >
             <StatusBar style={colors.statusBar} />
 
