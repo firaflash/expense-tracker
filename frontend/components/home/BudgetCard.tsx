@@ -11,36 +11,31 @@
 // - Percentage used
 // - Remaining amount
 // - Remove budget action
-
-import React from 'react';
-
-import {
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-
-import { Trash2 } from 'lucide-react-native';
-
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Pencil, Trash2 } from 'lucide-react-native';
+import { Budget } from '../../types/Budget';
+import { Category } from '../../types/Category';
 import useTheme from '../../hooks/useTheme';
 
-import type { Budget } from '../../types/Budget';
-import type { Category } from '../../types/Category';
 
 // Props = the data and functions this component needs from its parent.
 interface BudgetCardProps {
     budget: Budget;
     category: Category | undefined;
     spent: number;
-    onDelete: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
+    onPress?: () => void;
 }
 
 export default function BudgetCard({
     budget,
     category,
     spent,
+    onEdit,
     onDelete,
+    onPress,
 }: BudgetCardProps) {
 
     // Get the current theme colors.
@@ -48,6 +43,9 @@ export default function BudgetCard({
 
     // Create the styles using the current theme colors.
     const styles = createStyles(colors);
+
+    // Manage local state for expanded / collapsed card
+    const [isExpanded, setIsExpanded] = useState(false);
 
     // Calculate how much of the budget has been used.
     //
@@ -122,90 +120,95 @@ export default function BudgetCard({
 
     return (
         <View style={styles.card}>
-
-            {/* Top row: category information + remove button */}
-            <View style={styles.topRow}>
-
-                <View style={styles.categoryInfo}>
-
-                    <Text
-                        style={styles.categoryName}
-                        numberOfLines={1}
-                    >
-                        {category?.name ?? 'Uncategorized'}
-                    </Text>
-
-                    {/* Shows the budget type and exact date range. */}
-                    <Text
-                        style={styles.period}
-                        numberOfLines={1}
-                    >
-                        {periodText}
-                    </Text>
-
+            {/* The main card content wrapped in a touchable area to expand it */}
+            <TouchableOpacity
+                style={styles.cardInner}
+                onPress={() => {
+                    setIsExpanded((prev) => !prev);
+                    onPress?.();
+                }}
+                activeOpacity={0.8}
+            >
+                {/* Top row: category information */}
+                <View style={styles.topRow}>
+                    <View style={styles.categoryInfo}>
+                        <Text
+                            style={styles.categoryName}
+                            numberOfLines={1}
+                        >
+                            {category?.name ?? 'Uncategorized'}
+                        </Text>
+                        <Text
+                            style={styles.period}
+                            numberOfLines={1}
+                        >
+                            {periodText}
+                        </Text>
+                    </View>
                 </View>
-
-                {/* Remove button for this budget. */}
-                <TouchableOpacity
-                    onPress={onDelete}
-                    style={styles.deleteButton}
-                    activeOpacity={0.7}
-                >
-                    <Trash2
-                        size={17}
-                        color={colors.textSecondary}
-                        strokeWidth={2}
+                {/* Amount row: amount spent / budget limit */}
+                <View style={styles.amountRow}>
+                    <Text style={styles.spentText}>
+                        {formatMoney(spent)}
+                    </Text>
+                    <Text style={styles.limitText}>
+                        / {formatMoney(budget.limitAmount)}
+                    </Text>
+                </View>
+                {/* Progress bar showing how much of the budget has been used. */}
+                <View style={styles.barBackground}>
+                    <View
+                        style={[
+                            styles.barFill,
+                            {
+                                width: `${barWidth}%`,
+                                backgroundColor: barColor,
+                            },
+                        ]}
                     />
-                </TouchableOpacity>
-
-            </View>
-
-            {/* Amount row: amount spent / budget limit */}
-            <View style={styles.amountRow}>
-
-                <Text style={styles.spentText}>
-                    {formatMoney(spent)}
-                </Text>
-
-                <Text style={styles.limitText}>
-                    / {formatMoney(budget.limitAmount)}
-                </Text>
-
-            </View>
-
-            {/* Progress bar showing how much of the budget has been used. */}
-            <View style={styles.barBackground}>
-                <View
-                    style={[
-                        styles.barFill,
-                        {
-                            width: `${barWidth}%`,
-                            backgroundColor: barColor,
-                        },
-                    ]}
-                />
-            </View>
-
-            {/* Bottom row: percentage used + remaining budget */}
-            <View style={styles.bottomRow}>
-
-                <Text
-                    style={[
-                        styles.percentText,
-                        { color: barColor },
-                    ]}
-                >
-                    {Math.round(percentage * 100)}%
-                </Text>
-
-                <Text style={styles.remainingText}>
-                    {remaining >= 0
-                        ? `${formatMoney(remaining)} left`
-                        : `${formatMoney(Math.abs(remaining))} over!`}
-                </Text>
-
-            </View>
-
+                </View>
+                {/* Bottom row: percentage used + remaining budget */}
+                <View style={styles.bottomRow}>
+                    <Text
+                        style={[
+                            styles.percentText,
+                            { color: barColor },
+                        ]}
+                    >
+                        {Math.round(percentage * 100)}%
+                    </Text>
+                    <Text style={styles.remainingText}>
+                        {remaining >= 0
+                            ? `${formatMoney(remaining)} left`
+                            : `${formatMoney(Math.abs(remaining))} over!`}
+                    </Text>
+                </View>
+            </TouchableOpacity>
+            {/* Popout Edit & Delete Icons Under Row (No words) */}
+            {isExpanded && (
+                <View style={styles.actionTray}>
+                    <TouchableOpacity
+                        style={[styles.actionBtn, styles.editBtn]}
+                        onPress={() => {
+                            setIsExpanded(false);
+                            onEdit?.();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <Pencil size={18} color={colors.champagne} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.actionBtn, styles.deleteBtn]}
+                        onPress={() => {
+                            setIsExpanded(false);
+                            onDelete?.();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <Trash2 size={18} color={colors.danger} />
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 }
@@ -215,111 +218,106 @@ const createStyles = (
 ) => StyleSheet.create({
 
     card: {
-        // Main budget container.
-        // Uses the same surface color as the rest of the app.
         backgroundColor: colors.surface,
         borderRadius: 14,
-        padding: 14,
         marginBottom: 8,
         borderWidth: 1,
         borderColor: colors.border,
+        overflow: 'hidden', // Ensures the drawer doesn't spill out
     },
-
+    cardInner: {
+        padding: 14,
+    },
     topRow: {
-        // Category information and remove button
-        // are positioned on opposite sides.
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         marginBottom: 12,
     },
-
     categoryInfo: {
-        // Category name and period are stacked vertically.
         flex: 1,
         gap: 3,
         paddingRight: 8,
     },
-
     categoryName: {
         fontSize: 15,
         fontWeight: '600',
         color: colors.textPrimary,
     },
-
     period: {
-        // Small secondary information, similar to
-        // the date/note metadata in TransactionRow.
         fontSize: 12,
         color: colors.textSecondary,
         letterSpacing: 0.2,
     },
-
-    deleteButton: {
-        // Small neutral action button.
-        // The trash icon is intentionally subtle instead
-        // of using a strong red background.
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-
     amountRow: {
-        // Spent amount and budget limit stay
-        // on the same horizontal line.
         flexDirection: 'row',
         alignItems: 'baseline',
         marginBottom: 12,
     },
-
     spentText: {
         fontSize: 20,
         fontWeight: '700',
         color: colors.textPrimary,
     },
-
     limitText: {
         fontSize: 13,
         color: colors.textSecondary,
         marginLeft: 4,
     },
-
     barBackground: {
-        // The full progress bar background.
         height: 7,
         borderRadius: 4,
         backgroundColor: colors.border,
-        // Clips the colored bar so it stays
-        // inside the rounded container.
         overflow: 'hidden',
         marginBottom: 10,
     },
-
     barFill: {
-        // The colored section represents the
-        // percentage of the budget already spent.
         height: '100%',
         borderRadius: 4,
     },
-
     bottomRow: {
-        // Percentage and remaining amount
-        // are placed on opposite sides.
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-
     percentText: {
         fontSize: 13,
         fontWeight: '700',
     },
-
     remainingText: {
         fontSize: 12,
         color: colors.textSecondary,
     },
+    // --- Expanding Drawer Styles ---
+    actionTray: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        gap: 12,
+        paddingHorizontal: 12,
+        paddingBottom: 10,
+        paddingTop: 4,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+    },
 
+    actionBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    editBtn: {
+        backgroundColor: colors.surfaceAlt,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+
+    deleteBtn: {
+        backgroundColor: 'rgba(239, 68, 68, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.25)',
+    },
 });

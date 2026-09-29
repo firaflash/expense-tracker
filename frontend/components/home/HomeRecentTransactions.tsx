@@ -3,25 +3,41 @@
 // Self-contained "Recent Transactions" section for the HomeScreen.
 // Pulls its own data from the store, shows the last 7 transactions.
 
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../hooks/useTheme';
 import useMoniVoStore from '../../store/useMoniVoStore';
 import TransactionRow from './TransactionRow';
+import EditTransactionModal from '../modals/EditTransactionModal';
+import { Transaction } from '../../types/Transaction';
 
 export default function HomeRecentTransactions() {
     const colors = useTheme();
     const styles = createStyles(colors);
     const navigation = useNavigation();
-
     const transactions = useMoniVoStore((state) => state.transactions);
     const categories = useMoniVoStore((state) => state.categories);
-
+    const deleteTransaction = useMoniVoStore((state) => state.deleteTransaction);
+    const [editingTx, setEditingTx] = useState<Transaction | null>(null);
     const recentTransactions = transactions.slice(0, 7);
-
     const getCategoryById = (id: string) =>
         categories.find((cat) => cat.id === id);
+    const handleDelete = (tx: Transaction) => {
+        const catName = getCategoryById(tx.categoryId)?.name ?? 'Transaction';
+        Alert.alert(
+            'Delete Transaction',
+            `Remove this ${catName} transaction?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => deleteTransaction(tx.id),
+                },
+            ]
+        );
+    };
 
     return (
         <View>
@@ -32,7 +48,6 @@ export default function HomeRecentTransactions() {
                     <Text style={styles.seeAll}>See all</Text>
                 </TouchableOpacity>
             </View>
-
             {/* Transaction List */}
             {recentTransactions.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -48,14 +63,20 @@ export default function HomeRecentTransactions() {
                         key={transaction.id}
                         transaction={transaction}
                         category={getCategoryById(transaction.categoryId)}
-                        onPress={() => console.log('Tapped:', transaction.id)}
+                        onEdit={() => setEditingTx(transaction)}
+                        onDelete={() => handleDelete(transaction)}
                     />
                 ))
             )}
+            {/* Working Edit Modal */}
+            <EditTransactionModal
+                visible={!!editingTx}
+                transaction={editingTx}
+                onClose={() => setEditingTx(null)}
+            />
         </View>
     );
 }
-
 const createStyles = (colors: ReturnType<typeof useTheme>) =>
     StyleSheet.create({
         sectionHeader: {
@@ -80,8 +101,8 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
             gap: 8,
         },
         emptyIcon: {
-            fontSize: 48,
-            marginBottom: 8,
+            fontSize: 40,
+            marginBottom: 4,
         },
         emptyTitle: {
             fontSize: 16,
@@ -89,8 +110,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
             color: colors.textPrimary,
         },
         emptySubtitle: {
-            fontSize: 14,
+            fontSize: 13,
             color: colors.textSecondary,
-            textAlign: 'center',
         },
     });
