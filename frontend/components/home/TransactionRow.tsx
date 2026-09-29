@@ -2,24 +2,27 @@
 // We make this a separate component because it gets reused many times.
 // In React, anything you repeat -> extract it into a component.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { Pencil, Trash2 } from 'lucide-react-native';
 import { Transaction } from '../../types/Transaction';
 import { Category } from '../../types/Category';
-
 import useTheme from '../../hooks/useTheme';
 
 // Props = the data and functions this component needs from its parent.
 interface TransactionRowProps {
     transaction: Transaction;
-    category?: Category; // The category might be undefined if it cannot be found.
-    onPress: () => void; // Function that runs when the user taps the row.
+    category?: Category;// The category might be undefined if it cannot be found.
+    onEdit?: () => void;//
+    onDelete?: () => void;
+    onPress?: () => void;  // Function that runs when the user taps the row.
 }
 
 export default function TransactionRow({
     transaction,
     category,
+    onEdit,
+    onDelete,
     onPress,
 }: TransactionRowProps) {
     // Get the current theme colors.
@@ -27,6 +30,10 @@ export default function TransactionRow({
 
     // Create the styles using the current theme colors.
     const styles = createStyles(colors);
+
+    // Expand/collapse the transaction row to show edit and delete buttons.
+    const [isExpanded, setIsExpanded] = useState(false);
+
 
     // CREDIT = money coming in.
     // DEBIT = money going out.
@@ -53,90 +60,132 @@ export default function TransactionRow({
     )}`;
 
     return (
-        <TouchableOpacity
-            style={styles.row}
-            onPress={onPress}
-            activeOpacity={0.7}
-        >
-            {/* Middle: category name + date/note */}
-            <View style={styles.info}>
-                <Text style={styles.categoryName} numberOfLines={1}>
-                    {category?.name ?? 'Uncategorized'}
-                </Text>
-
-                <Text style={styles.meta} numberOfLines={1}>
-                    {transaction.note ? transaction.note : formattedDate}
-                </Text>
-            </View>
-
-            {/* Right: amount - green for income, red for expense */}
-            <Text
-                style={[
-                    styles.amount,
-                    isIncome ? styles.income : styles.expense,
-                ]}
+        <View style={[styles.wrapper, isExpanded && styles.wrapperExpanded]}>
+            {/* Main Row */}
+            <TouchableOpacity
+                style={styles.row}
+                onPress={() => {
+                    setIsExpanded((prev) => !prev);
+                    onPress?.();
+                }}
+                activeOpacity={0.8}
             >
-                {isIncome ? '+' : '-'}
-                {formattedAmount}
-            </Text>
-        </TouchableOpacity>
+                <View style={styles.info}>
+                    <Text style={styles.categoryName} numberOfLines={1}>
+                        {category?.name ?? 'Uncategorized'}
+                    </Text>
+                    <Text style={styles.meta} numberOfLines={1}>
+                        {transaction.note ? transaction.note : formattedDate}
+                    </Text>
+                </View>
+                <Text
+                    style={[
+                        styles.amount,
+                        isIncome ? styles.income : styles.expense,
+                    ]}
+                >
+                    {isIncome ? '+' : '-'}
+                    {formattedAmount}
+                </Text>
+            </TouchableOpacity>
+            {/* Popout Edit & Delete Icons Under Row (No words) */}
+            {isExpanded && (
+                <View style={styles.actionTray}>
+                    <TouchableOpacity
+                        style={[styles.actionBtn, styles.editBtn]}
+                        onPress={() => {
+                            setIsExpanded(false);
+                            onEdit?.();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <Pencil size={18} color={colors.champagne} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.actionBtn, styles.deleteBtn]}
+                        onPress={() => {
+                            setIsExpanded(false);
+                            onDelete?.();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <Trash2 size={18} color={colors.danger} />
+                    </TouchableOpacity>
+                </View>
+            )}
+        </View>
     );
 }
 
 const createStyles = (colors: ReturnType<typeof useTheme>) =>
     StyleSheet.create({
-        row: {
-            // The row contains the transaction information and amount
-            // arranged horizontally.
-            flexDirection: 'row',
-            alignItems: 'center',
-
-            paddingVertical: 14,
-            paddingHorizontal: 8,
-
+        wrapper: {
             backgroundColor: colors.surface,
             borderRadius: 14,
-            marginBottom: 5,
-
-            // Creates space between the transaction information
-            // and the amount.
-            gap: 12,
+            marginBottom: 8,
+            borderWidth: 1,
+            borderColor: 'transparent',
+            overflow: 'hidden',
         },
-
+        wrapperExpanded: {
+            borderColor: colors.border,
+        },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: 14,
+            paddingHorizontal: 12,
+        },
         info: {
-            // Takes up the available space between the
-            // transaction information and the amount.
             flex: 1,
-
-            // Creates a small vertical gap between the
-            // category name and the date/note.
-            gap: 3,
+            marginRight: 12,
         },
-
         categoryName: {
             fontSize: 15,
             fontWeight: '600',
             color: colors.textPrimary,
+            marginBottom: 3,
         },
-
         meta: {
             fontSize: 12,
             color: colors.textSecondary,
         },
-
         amount: {
             fontSize: 15,
             fontWeight: '700',
-            letterSpacing: 0.3,
         },
-
-        // Green indicates money coming into the account.
         income: {
-            color: '#4CAF50',
+            color: colors.success,
         },
-
-        // Red indicates money leaving the account.
         expense: {
-            color: '#EF5350',
+            color: colors.danger,
+        },
+        actionTray: {
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 12,
+            paddingHorizontal: 12,
+            paddingBottom: 10,
+            paddingTop: 4,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+        },
+        actionBtn: {
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        editBtn: {
+            backgroundColor: colors.surfaceAlt,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        deleteBtn: {
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            borderWidth: 1,
+            borderColor: 'rgba(239, 68, 68, 0.25)',
         },
     });

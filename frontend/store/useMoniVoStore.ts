@@ -16,6 +16,7 @@ import type { User } from '../types/User';
 import { defaultCategories } from '../constants/defaultCategories';
 import { defaultWallet, dummyTransactions, dummyBudgets } from '../utils/dummyData';
 import { ThemeColors } from '../constants/theme';
+import { State } from 'react-native-gesture-handler';
 
 // 1 we define the sape of the store 
 interface MoniVoStore {
@@ -45,6 +46,9 @@ interface MoniVoStore {
     addWallet: (wallet: Omit<Wallet, 'id'>) => void;
     deleteWallet: (id: string) => void;
     logOut: () => Promise<void>; // UPDATED: Now async to clear token
+
+    updateTransaction: (id: string, updated: Partial<Omit<Transaction, 'id' | 'createdAt'>>) => void;
+    updateBudget: (id: string, updated: Partial<Omit<Budget, 'id'>>) => void;
 
     // Getters (computed values => from the states above)
     totalBalance: () => number; //all money total across all wallets
@@ -183,6 +187,19 @@ const useMoniVoStore = create<MoniVoStore>((set, get) => ({
     deleteWallet: (id) => set((state) => ({
         wallets: state.wallets.filter((wallet) => wallet.id !== id),
     })),
+
+    updateTransaction: (id, updated) => set((state) => ({
+        transactions: state.transactions.map((tx) =>
+            tx.id === id ? { ...tx, ...updated } : tx
+        ),
+    })),
+
+    updateBudget: (id, updated) => set((state) => ({
+        budgets: state.budgets.map((b) =>
+            b.id === id ? { ...b, ...updated } : b
+        ),
+    })),
+
 
     // Getter implenataions
     // get() gives us access to the current state inside these functions

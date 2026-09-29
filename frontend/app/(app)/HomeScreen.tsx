@@ -14,6 +14,7 @@ import HomeSpendingChart from '../../components/home/HomeSpendingChart';
 import HomeBudgetPreview from '../../components/home/HomeBudgetPreview';
 import HomeRecentTransactions from '../../components/home/HomeRecentTransactions';
 import HomeActionButtons from '../../components/home/HomeActionButtons';
+import LogoutButton from '../../components/common/buttons/LogoutButton';
 
 
 export default function HomeScreen() {
@@ -42,6 +43,7 @@ export default function HomeScreen() {
 
             {/* ── FIXED TOP SECTION (doesn't scroll) ── */}
             <View style={{ paddingHorizontal: 10 }}>
+
                 {/* HEADER */}
                 <View style={styles.header}>
                     <View>
@@ -50,13 +52,19 @@ export default function HomeScreen() {
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.toggleButton} onPress={() => { toggleTheme() }}>
-                        {theme === 'dark'
-                            ? <Sun size={22} color={colors.champagne} />
-                            : <Moon size={22} color={colors.champagne} />
-                        }
-                    </TouchableOpacity>
+                    {/* Actions: Theme Toggle + Padlock Logout */}
+                    <View style={styles.headerActions}>
+                        <TouchableOpacity style={styles.toggleButton} onPress={() => { toggleTheme() }}>
+                            {theme === 'dark'
+                                ? <Sun size={22} color={colors.champagne} />
+                                : <Moon size={22} color={colors.champagne} />
+                            }
+                        </TouchableOpacity>
+
+                        <LogoutButton />
+                    </View>
                 </View>
+
 
                 {/* PREMIUM CREDIT CARDS */}
                 <BalanceCards
@@ -133,6 +141,12 @@ const createStyles = (colors: ReturnType<typeof useTheme>) => StyleSheet.create(
         paddingTop: 2,
         marginBottom: 5,
     },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+
     greeting: {
         fontSize: 14,
         color: colors.textSecondary,
