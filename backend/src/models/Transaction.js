@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const categorySchema = new mongoose.Schema(
+const transactionSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -9,26 +9,48 @@ const categorySchema = new mongoose.Schema(
       index: true
     },
 
-    name: {
-      type: String,
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
       required: true,
-      trim: true
+      index: true
     },
 
-    icon: {
-      type: String,
-      default: "category"
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+      index: true
     },
 
-    color: {
-      type: String,
-      default: "#6366f1"
+    amount: {
+      type: Number,
+      required: true,
+      min: 0.01
     },
 
     type: {
       type: String,
-      enum: ["EXPENSE", "INCOME", "BOTH"],
-      default: "EXPENSE"
+      enum: ["DEBIT", "CREDIT"],
+      required: true
+    },
+
+    note: {
+      type: String,
+      trim: true,
+      maxlength: 500
+    },
+
+    date: {
+      type: Date,
+      required: true,
+      index: true
+    },
+
+    status: {
+      type: String,
+      enum: ["PENDING", "CLEARED", "CANCELLED"],
+      default: "CLEARED"
     }
   },
   {
@@ -36,9 +58,9 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
-categorySchema.index(
-  { user: 1, name: 1 },
-  { unique: true }
-);
+transactionSchema.index({
+  user: 1,
+  date: -1
+});
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model("Transaction", transactionSchema);

@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 
 const app = express();
 
@@ -58,7 +59,7 @@ app.get('/', (req, res) => {
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
-// app.use('/api/transactions', transactionRoutes);
+app.use('/api/transactions', transactionRoutes);
 // app.use('/api/categories', categoryRoutes);
 // app.use('/api/analytics', analyticsRoutes);
 
