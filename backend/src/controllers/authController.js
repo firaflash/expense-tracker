@@ -3,7 +3,9 @@ import User from "../models/User.js";
 
 const generateToken = (id) => {
   console.log("Generating token for user ID:", process.env.JWT_SECRET);
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  console.log("Generated token:", token);
+  return token;
 };
 
 export const registerUser = async (req, res) => {
