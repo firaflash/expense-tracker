@@ -4,6 +4,10 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import transactionRoutes from './routes/transactionRoutes.js';
+import walletRoutes from "./routes/walletRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+
+
 
 const app = express();
 
@@ -59,8 +63,9 @@ app.get('/', (req, res) => {
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-// app.use('/api/categories', categoryRoutes);
+app.use('/api/transaction', transactionRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/categories', categoryRoutes);
 // app.use('/api/analytics', analyticsRoutes);
 
 // --- Error handling (MUST be last) ---
