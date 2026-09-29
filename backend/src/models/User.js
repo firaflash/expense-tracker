@@ -18,7 +18,6 @@ userSchema.pre("save", async function () {
   // Generate salt and hash the password
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  console.log(`Password hashed for user: ${this.email}` ,`New hashed password: ${this.password}`);
 });
 
 // to compare entered password with hashed password

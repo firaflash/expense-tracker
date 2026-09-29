@@ -23,6 +23,8 @@ api.interceptors.request.use(
         const token = await SecureStore.getItemAsync('userToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            delete config.headers.Authorization;
         }
         return config;
     },
