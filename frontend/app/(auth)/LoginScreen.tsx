@@ -144,10 +144,7 @@ export default function LoginScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* Forgot password link */}
-          <TouchableOpacity style={styles.forgotContainer}>
-            <Text style={styles.forgotText}>Forgot password?</Text>
-          </TouchableOpacity>
+
           {/* Login Button — uses reusable PrimaryButton */}
           <PrimaryButton
             label={loading ? "Signing In..." : "Sign In"} // Show loading text
@@ -253,15 +250,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
     eyeButton: {
       padding: 14,
     },
-    forgotContainer: {
-      alignItems: "flex-end",
-      marginBottom: 8,
-      marginTop: 4,
-    },
-    forgotText: {
-      color: colors.textSecondary,
-      fontSize: 14,
-    },
+
     // loginButton and loginButtonText REMOVED
     // → now handled by PrimaryButton component
     registerRow: {
