@@ -35,7 +35,7 @@ export default function EditTransactionModal({
     const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
 
     useEffect(() => {
-        if (transaction) {
+        if (transaction && visible) {
             setType(transaction.type);
             setAmount(transaction.amount.toString());
             setNote(transaction.note || '');
@@ -74,6 +74,8 @@ export default function EditTransactionModal({
 
     if (!transaction) return null;
 
+    const accentColor = type === 'CREDIT' ? colors.success : colors.danger;
+
     return (
         <Modal
             visible={visible}
@@ -83,81 +85,124 @@ export default function EditTransactionModal({
             statusBarTranslucent
         >
             <View style={styles.modalRoot}>
+                {/* Backdrop */}
                 <Pressable style={styles.backdrop} onPress={onClose} />
+
+                {/* Centered Floating Card */}
                 <KeyboardAvoidingView
                     style={styles.keyboardLayer}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 >
                     <View style={styles.container}>
+                        {/* Subtle inner glass highlight */}
+                        <View pointerEvents="none" style={styles.glassHighlight} />
+
                         {/* HEADER */}
                         <View style={styles.header}>
                             <View>
                                 <Text style={styles.headerEyebrow}>EDIT RECORD</Text>
-                                <Text style={styles.headerTitle}>Update Transaction</Text>
+                                <Text style={styles.headerTitle}>
+                                    {type === 'CREDIT' ? 'Edit Income' : 'Edit Expense'}
+                                </Text>
                             </View>
                             <CloseButton onPress={onClose} />
                         </View>
 
                         {/* FORM */}
                         <ScrollView
+                            style={styles.scroll}
                             contentContainerStyle={styles.form}
-                            keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
                         >
-                            {/* TYPE TOGGLE (Income / Expense) */}
-                            <View style={styles.typeSelector}>
+                            {/* TYPE TOGGLE */}
+                            <View style={styles.toggleContainer}>
                                 <TouchableOpacity
-                                    style={[styles.typeButton, type === 'DEBIT' && styles.typeButtonActiveDebit]}
+                                    activeOpacity={0.8}
                                     onPress={() => {
                                         setType('DEBIT');
                                         setSelectedCategoryId('');
                                     }}
+                                    style={[
+                                        styles.toggleButton,
+                                        type === 'DEBIT' && {
+                                            borderColor: colors.danger,
+                                            backgroundColor: colors.danger + '10',
+                                        },
+                                    ]}
                                 >
-                                    <Text style={[styles.typeText, type === 'DEBIT' && styles.typeTextActive]}>
+                                    <View style={[styles.typeDot, { backgroundColor: colors.danger }]} />
+                                    <Text
+                                        style={[
+                                            styles.toggleText,
+                                            {
+                                                color: type === 'DEBIT'
+                                                    ? colors.danger
+                                                    : colors.textSecondary,
+                                            },
+                                        ]}
+                                    >
                                         Expense
                                     </Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
-                                    style={[styles.typeButton, type === 'CREDIT' && styles.typeButtonActiveCredit]}
+                                    activeOpacity={0.8}
                                     onPress={() => {
                                         setType('CREDIT');
                                         setSelectedCategoryId('');
                                     }}
+                                    style={[
+                                        styles.toggleButton,
+                                        type === 'CREDIT' && {
+                                            borderColor: colors.success,
+                                            backgroundColor: colors.success + '10',
+                                        },
+                                    ]}
                                 >
-                                    <Text style={[styles.typeText, type === 'CREDIT' && styles.typeTextActive]}>
+                                    <View style={[styles.typeDot, { backgroundColor: colors.success }]} />
+                                    <Text
+                                        style={[
+                                            styles.toggleText,
+                                            {
+                                                color: type === 'CREDIT'
+                                                    ? colors.success
+                                                    : colors.textSecondary,
+                                            },
+                                        ]}
+                                    >
                                         Income
                                     </Text>
                                 </TouchableOpacity>
                             </View>
 
-                            {/* AMOUNT INPUT */}
+                            {/* AMOUNT */}
                             <AmountInput
                                 value={amount}
                                 onChangeText={setAmount}
                                 variant="large"
                             />
 
-                            {/* CATEGORY PICKER */}
+                            {/* CATEGORY */}
                             <CategoryPicker
                                 categories={filteredCategories}
                                 selectedId={selectedCategoryId}
                                 onSelect={setSelectedCategoryId}
+                                placeholder="Select a category"
                             />
 
-                            {/* NOTE INPUT */}
+                            {/* NOTE */}
                             <NoteInput
                                 value={note}
                                 onChangeText={setNote}
                             />
 
-                            {/* SUBMIT BUTTON */}
-                            <View style={styles.footer}>
-                                <PrimaryButton
-                                    label="Save Changes"
-                                    onPress={handleSubmit}
-                                />
-                            </View>
+                            {/* SUBMIT */}
+                            <PrimaryButton
+                                label="Save Changes"
+                                onPress={handleSubmit}
+                                color={accentColor}
+                            />
                         </ScrollView>
                     </View>
                 </KeyboardAvoidingView>
@@ -170,81 +215,102 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
     StyleSheet.create({
         modalRoot: {
             flex: 1,
-            justifyContent: 'flex-end',
         },
         backdrop: {
-            ...StyleSheet.absoluteFill,
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            backgroundColor: colors.overlay,
         },
-
         keyboardLayer: {
-            justifyContent: 'flex-end',
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 14,
+            paddingVertical: 24,
         },
         container: {
-            backgroundColor: colors.background,
-            borderTopLeftRadius: 28,
-            borderTopRightRadius: 28,
+            width: '100%',
+            maxWidth: 500,
+            maxHeight: '88%',
+            backgroundColor: colors.surface + 'F2',
+            borderColor: colors.champagne + '55',
+            borderRadius: 30,
             borderWidth: 1,
-            borderColor: colors.border,
-            maxHeight: '90%',
             overflow: 'hidden',
+            shadowOffset: { width: 0, height: 15 },
+            shadowOpacity: 0.35,
+            shadowRadius: 35,
+            elevation: 25,
+        },
+        glassHighlight: {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            borderRadius: 30,
+            borderWidth: 1,
+            pointerEvents: 'none',
+            borderColor: colors.champagne + '18',
         },
         header: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: 20,
+            paddingHorizontal: 22,
             paddingTop: 20,
-            paddingBottom: 16,
+            paddingBottom: 18,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
         },
         headerEyebrow: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: '700',
             letterSpacing: 1.5,
             color: colors.champagne,
-            marginBottom: 2,
+            marginBottom: 4,
         },
         headerTitle: {
-            fontSize: 18,
+            fontSize: 21,
             fontWeight: '700',
             color: colors.textPrimary,
+            letterSpacing: -0.3,
+        },
+        scroll: {
+            flexGrow: 0,
         },
         form: {
-            padding: 20,
-            gap: 16,
+            paddingHorizontal: 20,
+            paddingTop: 20,
+            paddingBottom: 20,
+            gap: 18,
         },
-        typeSelector: {
+        toggleContainer: {
             flexDirection: 'row',
-            backgroundColor: colors.surfaceAlt,
-            borderRadius: 14,
-            padding: 4,
+            gap: 10,
+        },
+        toggleButton: {
+            flex: 1,
+            minHeight: 48,
+            borderRadius: 15,
             borderWidth: 1,
             borderColor: colors.border,
-        },
-        typeButton: {
-            flex: 1,
-            paddingVertical: 10,
+            backgroundColor: colors.surfaceAlt,
+            flexDirection: 'row',
             alignItems: 'center',
-            borderRadius: 10,
+            justifyContent: 'center',
+            gap: 8,
         },
-        typeButtonActiveDebit: {
-            backgroundColor: colors.danger,
+        typeDot: {
+            width: 8,
+            height: 8,
+            borderRadius: 4,
         },
-        typeButtonActiveCredit: {
-            backgroundColor: colors.success,
-        },
-        typeText: {
+        toggleText: {
             fontSize: 14,
             fontWeight: '600',
-            color: colors.textSecondary,
-        },
-        typeTextActive: {
-            color: '#FFFFFF',
-        },
-        footer: {
-            marginTop: 10,
-            marginBottom: 24,
         },
     });
