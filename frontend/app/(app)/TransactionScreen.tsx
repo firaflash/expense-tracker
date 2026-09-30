@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, act } from 'react';
 // use memo caches an expensiv calculain it only recalcualte when its dependics change we'll 
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SectionList, Modal, } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { CalendarDays, Filter, Search, X, Plus } from 'lucide-react-native';
@@ -13,6 +13,9 @@ import useMoniVoStore from '../../store/useMoniVoStore';
 import TransactionRow from '../../components/home/TransactionRow';
 import { FlatList } from 'react-native';
 import AddTransactionModal from '../../components/modals/AddTransactionModal';
+import EditTransactionModal from '../../components/modals/EditTransactionModal';
+import { Transaction } from '../../types/Transaction';
+
 export default function TransactionScreen() {
     // theme
     const colors = useTheme();
@@ -21,6 +24,25 @@ export default function TransactionScreen() {
     // Zustand
     const transactions = useMoniVoStore((state) => state.transactions);
     const categories = useMoniVoStore((state) => state.categories);
+    const deleteTransaction = useMoniVoStore((state) => state.deleteTransaction);
+    const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+
+    const handleDelete = (tx: Transaction) => {
+        const catName = getCategoryById(tx.categoryId)?.name ?? 'Transaction';
+        Alert.alert(
+            'Delete Transaction',
+            `Remove this ${catName} transaction?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => deleteTransaction(tx.id),
+                },
+            ]
+        );
+    };
+
 
     // Locat state
     const [searchQuery, setSearchQuery] = useState('');
@@ -231,10 +253,9 @@ export default function TransactionScreen() {
                     renderItem={({ item }) => (
                         <TransactionRow
                             transaction={item}
-                            category={getCategoryById(
-                                item.categoryId
-                            )}
-                            onPress={() => console.log('Tapped:', item.id)}
+                            category={getCategoryById(item.categoryId)}
+                            onEdit={() => setEditingTx(item)}
+                            onDelete={() => handleDelete(item)}
                         />
                     )}
                 />
@@ -318,6 +339,12 @@ export default function TransactionScreen() {
                 onClose={() => setModalVisible(false)}
                 defaultType={modalType}
             />
+            <EditTransactionModal
+                visible={!!editingTx}
+                transaction={editingTx}
+                onClose={() => setEditingTx(null)}
+            />
+
         </SafeAreaView >
     );
 }

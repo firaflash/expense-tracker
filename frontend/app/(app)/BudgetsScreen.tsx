@@ -10,6 +10,7 @@ import useMoniVoStore from "../../store/useMoniVoStore";
 import BudgetCard from "../../components/home/BudgetCard";
 import FloatingActionButton from "../../components/common/buttons/FloatingActionButton";
 
+import EditBudgetModal from '../../components/modals/EditBudgetModal';
 import AddBudgetModal from '../../components/modals/AddBudgetModal';
 import { Budget } from "../../types/Budget";
 
@@ -20,12 +21,13 @@ export default function BudgetsScreen() {
     const colors = useTheme();
     const styles = createStyles(colors);
 
-    // ── ZUSTAND ──────────────────────────────────────────────
+    // ZUSTAND 
 
     const budgets = useMoniVoStore((state) => state.budgets);
     const transactions = useMoniVoStore((state) => state.transactions);
     const categories = useMoniVoStore((state) => state.categories);
     const deleteBudget = useMoniVoStore((state) => state.deleteBudget);
+    const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
 
     // LOCAL STATE
 
@@ -135,6 +137,7 @@ export default function BudgetsScreen() {
                         budget={item}
                         category={getCategoryById(item.categoryId)}
                         spent={getSpentForBudget(item) || 0}
+                        onEdit={() => setEditingBudget(item)}
                         onDelete={() =>
                             handleDelete(
                                 item.id,
@@ -143,6 +146,7 @@ export default function BudgetsScreen() {
                         }
                     />
                 )}
+
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
                         <NotebookPen
@@ -161,6 +165,12 @@ export default function BudgetsScreen() {
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
             />
+            <EditBudgetModal
+                visible={!!editingBudget}
+                budget={editingBudget}
+                onClose={() => setEditingBudget(null)}
+            />
+
         </SafeAreaView>
 
     );
