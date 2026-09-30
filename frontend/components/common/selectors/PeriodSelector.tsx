@@ -125,7 +125,7 @@ const getDatesBetween = (start: string, end: string) => {
 
 // ══════════════════════════════════════════════════════════
 // PERIOD WHEEL — the scrollable iOS-style picker
-// ══════════════════════════════════════════════════════════
+
 function PeriodWheel({
     value,
     onChange,

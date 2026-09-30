@@ -39,7 +39,7 @@ export default function EditBudgetModal({
     const [endDate, setEndDate] = useState('');
 
     useEffect(() => {
-        if (budget) {
+        if (budget && visible) {
             setSelectedCategoryId(budget.categoryId);
             setLimitAmount(budget.limitAmount.toString());
             const p = budget.recurring === 'none' ? 'custom' : (budget.recurring as BudgetPeriod);
@@ -51,7 +51,6 @@ export default function EditBudgetModal({
 
     const recurring = period === 'custom' ? 'none' : period;
 
-    // Available categories: include the current budget's category + any unused expense categories
     const availableCategories = categories.filter((cat) => {
         if (cat.flow !== 'EXPENSE') return false;
         if (budget && cat.id === budget.categoryId) return true;
@@ -97,12 +96,18 @@ export default function EditBudgetModal({
             statusBarTranslucent
         >
             <View style={styles.modalRoot}>
+                {/* Backdrop */}
                 <Pressable style={styles.backdrop} onPress={onClose} />
+
+                {/* Centered Floating Card */}
                 <KeyboardAvoidingView
                     style={styles.keyboardLayer}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 >
                     <View style={styles.container}>
+                        {/* Subtle inner glass highlight */}
+                        <View pointerEvents="none" style={styles.glassHighlight} />
+
                         {/* HEADER */}
                         <View style={styles.header}>
                             <View>
@@ -118,16 +123,17 @@ export default function EditBudgetModal({
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
-                            {/* CATEGORY PICKER */}
+                            {/* CATEGORY */}
                             <CategoryPicker
                                 categories={availableCategories}
                                 selectedId={selectedCategoryId}
                                 onSelect={setSelectedCategoryId}
+                                placeholder="Choose a category"
                             />
 
-                            {/* AMOUNT INPUT */}
-                            <View style={styles.inputSection}>
-                                <Text style={styles.inputLabel}>BUDGET LIMIT</Text>
+                            {/* AMOUNT */}
+                            <View style={styles.fieldGroup}>
+                                <Text style={styles.label}>Budget Limit</Text>
                                 <AmountInput
                                     value={limitAmount}
                                     onChangeText={setLimitAmount}
@@ -135,25 +141,22 @@ export default function EditBudgetModal({
                                 />
                             </View>
 
-                            {/* PERIOD SELECTOR */}
+                            {/* PERIOD + DATE RANGE */}
                             <PeriodSelector
-                                period={period}
                                 startDate={startDate}
                                 endDate={endDate}
-                                onPeriodChange={setPeriod}
+                                period={period}
                                 onStartDateChange={setStartDate}
                                 onEndDateChange={setEndDate}
+                                onPeriodChange={setPeriod}
                             />
 
-                            {/* SUBMIT BUTTON */}
-                            <View style={styles.footer}>
-                                <PrimaryButton
-                                    label="Save Changes"
-                                    onPress={handleSubmit}
-                                />
-                            </View>
+                            {/* SUBMIT */}
+                            <PrimaryButton
+                                label="Save Changes"
+                                onPress={handleSubmit}
+                            />
                         </ScrollView>
-
                     </View>
                 </KeyboardAvoidingView>
             </View>
@@ -165,62 +168,81 @@ const createStyles = (colors: ReturnType<typeof useTheme>) =>
     StyleSheet.create({
         modalRoot: {
             flex: 1,
-            justifyContent: 'flex-end',
         },
         backdrop: {
-            ...StyleSheet.absoluteFill,
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            backgroundColor: colors.overlay,
         },
-
         keyboardLayer: {
-            justifyContent: 'flex-end',
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 14,
+            paddingVertical: 24,
         },
         container: {
-            backgroundColor: colors.background,
-            borderTopLeftRadius: 28,
-            borderTopRightRadius: 28,
+            width: '100%',
+            maxWidth: 500,
+            maxHeight: '88%',
+            backgroundColor: colors.surface + 'F2',
+            borderColor: colors.champagne + '55',
+            borderRadius: 30,
             borderWidth: 1,
-            borderColor: colors.border,
-            maxHeight: '90%',
             overflow: 'hidden',
+            shadowOffset: { width: 0, height: 15 },
+            shadowOpacity: 0.35,
+            shadowRadius: 35,
+            elevation: 25,
+        },
+        glassHighlight: {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            borderRadius: 30,
+            borderWidth: 1,
+            pointerEvents: 'none',
+            borderColor: colors.champagne + '18',
         },
         header: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: 20,
-            paddingTop: 20,
-            paddingBottom: 16,
+            paddingHorizontal: 22,
+            paddingTop: 18,
+            paddingBottom: 14,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
         },
         headerEyebrow: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: '700',
             letterSpacing: 1.5,
             color: colors.champagne,
-            marginBottom: 2,
+            marginBottom: 4,
         },
         headerTitle: {
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: '700',
             color: colors.textPrimary,
         },
         form: {
-            padding: 20,
-            gap: 16,
+            padding: 18,
+            gap: 18,
         },
-        footer: {
-            marginTop: 10,
-            marginBottom: 24,
-        },
-        inputSection: {
+        fieldGroup: {
             gap: 6,
         },
-        inputLabel: {
+        label: {
             fontSize: 12,
             fontWeight: '600',
             color: colors.textSecondary,
+            textTransform: 'uppercase',
             letterSpacing: 0.5,
         },
     });
