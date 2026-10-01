@@ -76,7 +76,7 @@ const BalanceCards = forwardRef<BalanceCardsRef, BalanceCardsProps>(
                         styles.card,
                         {
                             borderColor: cardBorderColor,
-                            shadowColor: isDark ? colors.background : colors.subtleGold,
+                            shadowColor: isDark ? '#000000' : colors.champagne,
                         },
                     ]}
                 >
