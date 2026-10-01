@@ -106,18 +106,23 @@ export default function AddTransactionModal({ visible, onClose, defaultType, }: 
                 : 'wallet-1',
             date: now,
             note: note.trim() || undefined,
-            status: 'CLEARED',
+            status: 'CLEARED' as const,
+
         };
 
         // Add transaction to Zustand.
         // HomeScreen automatically receives the new state.
+        // Add transaction to Zustand.
+        // HomeScreen automatically receives the new state.
+
+        // Add transaction to Zustand.
+        // HomeScreen automatically receives the new state.
         try {
-            await (newTransaction);
+            await addTransaction(newTransaction);
             onClose();
         } catch (error) {
             alert('Failed to save transaction. Please try again.');
         }
-
         // Close modal.
         onClose();
     };
