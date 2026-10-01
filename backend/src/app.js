@@ -17,6 +17,7 @@ const allowedOrigins = [
   'http://localhost:8081',
   'http://localhost:19006',
   'exp://127.0.0.1:19000',
+  'exp://10.0.4.242:8081',
   // add your ngrok URL here when sharing:
   // 'https://lantern-unwrapped-handshake.ngrok-free.dev',
 ];
@@ -25,10 +26,10 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // allow no-origin (Postman, native RN, curl)
-      if (!origin) return callback(null, true);
+      if (origin) return callback(null, true);
 
       // allow anything in dev if you want to stop fighting CORS
-      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+      if (process.env.NODE_ENV !== 'development') return callback(null, true);
 
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS blocked: ${origin}`));
