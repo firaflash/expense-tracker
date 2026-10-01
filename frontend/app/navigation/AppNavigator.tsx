@@ -139,9 +139,20 @@ export default function AppNavigator() {
   //   this component re-renders and shows the correct navigator
 
   // Check for existing token when app first loads
+  // Check for existing token when app first loads, then fetch real data
   React.useEffect(() => {
-    checkAuth();
+    const init = async () => {
+      await checkAuth();
+      // After auth check, if user exists, fetch their data from backend
+      const user = useMoniVoStore.getState().user;
+      if (user) {
+        await useMoniVoStore.getState().fetchTransactions();
+        await useMoniVoStore.getState().fetchBudgets();
+      }
+    };
+    init();
   }, []);
+
 
   // Show loading spinner while checking authentication
   if (isLoadingAuth) {

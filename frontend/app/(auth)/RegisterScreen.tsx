@@ -53,7 +53,11 @@ export default function RegisterScreen({ navigation }: Props) {
     try {
       console.log("📡 2. Sending request to backend...");
       await register(name, email, password);
+      // Fetch the user's data (will be empty for new users, but sets up the connection)
+      await useMoniVoStore.getState().fetchTransactions();
+      await useMoniVoStore.getState().fetchBudgets();
       console.log("✅ 3. Registration successful!");
+
     } catch (error: any) {
       console.log("❌ 4. Registration failed:", error.message);
       console.log("❌ Error details:", error.response?.data);

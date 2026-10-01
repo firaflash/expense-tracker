@@ -1,21 +1,19 @@
 import express from "express";
-
 import {
-  createTransaction,
-  getTransactions,
-  getTransaction,
-  updateTransaction,
-  deleteTransaction
+    getTransactions,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
 } from "../controllers/transactionController.js";
-import { protect } from  "../middleware/authMiddleware.js"
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+// All routes require authentication
 router.use(protect);
 
 router.get("/", getTransactions);
 router.post("/", createTransaction);
-router.get("/:id", getTransaction);
 router.put("/:id", updateTransaction);
 router.delete("/:id", deleteTransaction);
 

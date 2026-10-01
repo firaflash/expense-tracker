@@ -1,321 +1,121 @@
-import mongoose from "mongoose";
 import Transaction from "../models/Transaction.js";
-import Wallet from "../models/Wallet.js";
-import Category from "../models/Category.js";
 
-
-// ============================================
-// CREATE TRANSACTION
-// POST /api/transactions
-// ============================================
-export const createTransaction = async (req, res) => {
-  try {
-    const {
-      amount,
-      type,
-      category,
-      wallet,
-      note,
-      date,
-      status,
-    } = req.body;
-
-    // Required fields
-    if (
-      amount === undefined ||
-      !type ||
-      !category ||
-      !wallet ||
-      !date
-    ) {
-      return res.status(400).json({
-        message: "Amount, type, category, wallet, and date are required",
-      });
-    }
-
-    // Amount validation
-    if (amount <= 0) {
-      return res.status(400).json({
-        message: "Amount must be greater than 0",
-      });
-    }
-
-    // Validate wallet ID format
-    if (!mongoose.Types.ObjectId.isValid(wallet)) {
-      return res.status(400).json({
-        message: "Invalid wallet ID",
-      });
-    }
-
-    // Validate category ID format
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).json({
-        message: "Invalid category ID",
-      });
-    }
-
-    // Make sure wallet belongs to logged-in user
-    const walletExists = await Wallet.findOne({
-      _id: wallet,
-      user: req.user._id,
-    });
-
-    if (!walletExists) {
-      return res.status(400).json({
-        message: "Invalid wallet",
-      });
-    }
-
-    // Make sure category belongs to logged-in user
-    const categoryExists = await Category.findOne({
-      _id: category,
-      user: req.user._id,
-    });
-
-    if (!categoryExists) {
-      return res.status(400).json({
-        message: "Invalid category",
-      });
-    }
-
-    // Create transaction
-    const transaction = await Transaction.create({
-      user: req.user._id,
-      amount,
-      type,
-      category,
-      wallet,
-      note,
-      date,
-      status,
-    });
-
-    return res.status(201).json(transaction);
-
-  } catch (error) {
-    console.error("CREATE TRANSACTION ERROR:", error);
-
-    return res.status(500).json({
-      message: "Server error while creating transaction",
-    });
-  }
-};
-
-
-// ============================================
-// GET ALL TRANSACTIONS
-// GET /api/transactions
-// ============================================
+// GET /api/transactions — fetch all for logged-in user
 export const getTransactions = async (req, res) => {
-  try {
-    const transactions = await Transaction.find({
-      user: req.user._id,
-    })
-      .sort({ date: -1 })
-      .populate("wallet", "name currency")
-      .populate("category", "name icon color type");
+    try {
+        const transactions = await Transaction.find({ userId: req.user._id }).sort({
+            createdAt: -1,
+        });
 
-    return res.status(200).json(transactions);
+        // Map MongoDB _id to id so the frontend can use it directly
+        const mapped = transactions.map((tx) => ({
+            id: tx._id.toString(),
+            amount: tx.amount,
+            type: tx.type,
+            categoryId: tx.categoryId,
+            note: tx.note,
+            date: tx.date,
+            status: tx.status,
+            walletId: tx.walletId,
+            createdAt: tx.createdAt.toISOString(),
+        }));
 
-  } catch (error) {
-    console.error("GET TRANSACTIONS ERROR:", error);
-
-    return res.status(500).json({
-      message: "Server error while fetching transactions",
-    });
-  }
+        res.json(mapped);
+    } catch (error) {
+        console.error("GET TRANSACTIONS ERROR:", error);
+        res.status(500).json({ message: "Failed to fetch transactions" });
+    }
 };
 
+// POST /api/transactions — create a new transaction
+export const createTransaction = async (req, res) => {
+    try {
+        const { amount, type, categoryId, note, date, status, walletId } = req.body;
 
-// ============================================
-// GET ONE TRANSACTION
-// GET /api/transactions/:id
-// ============================================
-export const getTransaction = async (req, res) => {
-  try {
-    const { id } = req.params;
+        const transaction = await Transaction.create({
+            userId: req.user._id,
+            amount,
+            type,
+            categoryId,
+            note: note || "",
+            date,
+            status: status || "CLEARED",
+            walletId: walletId || "wallet-main",
+        });
 
-    // Validate MongoDB ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid transaction ID",
-      });
+        res.status(201).json({
+            id: transaction._id.toString(),
+            amount: transaction.amount,
+            type: transaction.type,
+            categoryId: transaction.categoryId,
+            note: transaction.note,
+            date: transaction.date,
+            status: transaction.status,
+            walletId: transaction.walletId,
+            createdAt: transaction.createdAt.toISOString(),
+        });
+    } catch (error) {
+        console.error("CREATE TRANSACTION ERROR:", error);
+        res.status(500).json({ message: "Failed to create transaction" });
     }
-
-    const transaction = await Transaction.findOne({
-      _id: id,
-      user: req.user._id,
-    })
-      .populate("wallet", "name currency")
-      .populate("category", "name icon color type");
-
-    if (!transaction) {
-      return res.status(404).json({
-        message: "Transaction not found",
-      });
-    }
-
-    return res.status(200).json(transaction);
-
-  } catch (error) {
-    console.error("GET TRANSACTION ERROR:", error);
-
-    return res.status(500).json({
-      message: "Server error while fetching transaction",
-    });
-  }
 };
 
-
-// ============================================
-// UPDATE TRANSACTION
-// PUT /api/transactions/:id
-// ============================================
+// PUT /api/transactions/:id — update a transaction
 export const updateTransaction = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Validate transaction ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid transaction ID",
-      });
-    }
-
-    // Only allow these fields to be updated
-    const allowedFields = [
-      "amount",
-      "type",
-      "category",
-      "wallet",
-      "note",
-      "date",
-      "status",
-    ];
-
-    const updates = {};
-
-    for (const field of allowedFields) {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    }
-
-    // Make sure transaction belongs to logged-in user
-    const transaction = await Transaction.findOne({
-      _id: id,
-      user: req.user._id,
-    });
-
-    if (!transaction) {
-      return res.status(404).json({
-        message: "Transaction not found",
-      });
-    }
-
-    // Validate amount if being updated
-    if (
-      updates.amount !== undefined &&
-      updates.amount <= 0
-    ) {
-      return res.status(400).json({
-        message: "Amount must be greater than 0",
-      });
-    }
-
-    // If wallet is being changed, verify ownership
-    if (updates.wallet !== undefined) {
-      if (!mongoose.Types.ObjectId.isValid(updates.wallet)) {
-        return res.status(400).json({
-          message: "Invalid wallet ID",
+    try {
+        const transaction = await Transaction.findOne({
+            _id: req.params.id,
+            userId: req.user._id,
         });
-      }
 
-      const walletExists = await Wallet.findOne({
-        _id: updates.wallet,
-        user: req.user._id,
-      });
+        if (!transaction) {
+            return res.status(404).json({ message: "Transaction not found" });
+        }
 
-      if (!walletExists) {
-        return res.status(400).json({
-          message: "Invalid wallet",
+        // Update only the fields that were sent
+        const { amount, type, categoryId, note, date, status, walletId } = req.body;
+        if (amount !== undefined) transaction.amount = amount;
+        if (type !== undefined) transaction.type = type;
+        if (categoryId !== undefined) transaction.categoryId = categoryId;
+        if (note !== undefined) transaction.note = note;
+        if (date !== undefined) transaction.date = date;
+        if (status !== undefined) transaction.status = status;
+        if (walletId !== undefined) transaction.walletId = walletId;
+
+        await transaction.save();
+
+        res.json({
+            id: transaction._id.toString(),
+            amount: transaction.amount,
+            type: transaction.type,
+            categoryId: transaction.categoryId,
+            note: transaction.note,
+            date: transaction.date,
+            status: transaction.status,
+            walletId: transaction.walletId,
+            createdAt: transaction.createdAt.toISOString(),
         });
-      }
+    } catch (error) {
+        console.error("UPDATE TRANSACTION ERROR:", error);
+        res.status(500).json({ message: "Failed to update transaction" });
     }
-
-    // If category is being changed, verify ownership
-    if (updates.category !== undefined) {
-      if (!mongoose.Types.ObjectId.isValid(updates.category)) {
-        return res.status(400).json({
-          message: "Invalid category ID",
-        });
-      }
-
-      const categoryExists = await Category.findOne({
-        _id: updates.category,
-        user: req.user._id,
-      });
-
-      if (!categoryExists) {
-        return res.status(400).json({
-          message: "Invalid category",
-        });
-      }
-    }
-
-    // Apply updates
-    Object.assign(transaction, updates);
-
-    const updatedTransaction = await transaction.save();
-
-    return res.status(200).json(updatedTransaction);
-
-  } catch (error) {
-    console.error("UPDATE TRANSACTION ERROR:", error);
-
-    return res.status(500).json({
-      message: "Server error while updating transaction",
-    });
-  }
 };
 
-
-// ============================================
-// DELETE TRANSACTION
-// DELETE /api/transactions/:id
-// ============================================
+// DELETE /api/transactions/:id — delete a transaction
 export const deleteTransaction = async (req, res) => {
-  try {
-    const { id } = req.params;
+    try {
+        const transaction = await Transaction.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user._id,
+        });
 
-    // Validate transaction ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid transaction ID",
-      });
+        if (!transaction) {
+            return res.status(404).json({ message: "Transaction not found" });
+        }
+
+        res.json({ message: "Transaction deleted" });
+    } catch (error) {
+        console.error("DELETE TRANSACTION ERROR:", error);
+        res.status(500).json({ message: "Failed to delete transaction" });
     }
-
-    // Only delete if it belongs to logged-in user
-    const transaction = await Transaction.findOneAndDelete({
-      _id: id,
-      user: req.user._id,
-    });
-
-    if (!transaction) {
-      return res.status(404).json({
-        message: "Transaction not found",
-      });
-    }
-
-    return res.status(200).json({
-      message: "Transaction deleted successfully",
-    });
-
-  } catch (error) {
-    console.error("DELETE TRANSACTION ERROR:", error);
-
-    return res.status(500).json({
-      message: "Server error while deleting transaction",
-    });
-  }
 };

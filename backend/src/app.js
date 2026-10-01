@@ -2,12 +2,9 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import transactionRoutes from './routes/transactionRoutes.js';
-import walletRoutes from "./routes/walletRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
-
-
+import budgetRoutes from './routes/budgetRoutes.js';
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
 
@@ -42,11 +39,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- Logging ---
-// if (process.env.NODE_ENV !== 'production') {
-//   app.use(morgan('dev'));
-// }
-
 // --- Health check ---
 app.get('/api/health', (req, res) => {
   res.json({
@@ -62,10 +54,8 @@ app.get('/', (req, res) => {
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
-app.use('/api/transaction', transactionRoutes);
-app.use('/api/wallet', walletRoutes);
-app.use('/api/categories', categoryRoutes);
-// app.use('/api/analytics', analyticsRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 // --- Error handling (MUST be last) ---
 app.use(notFound);

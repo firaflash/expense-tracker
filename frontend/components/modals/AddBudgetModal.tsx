@@ -90,7 +90,7 @@ export default function AddBudgetModal({
     };
 
     // SUBMIT
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const numAmount = parseFloat(limitAmount);
 
         if (isNaN(numAmount) || numAmount <= 0) {
@@ -106,16 +106,20 @@ export default function AddBudgetModal({
             return;
         }
 
-        addBudget({
-            categoryId: selectedCategoryId,
-            limitAmount: numAmount,
-            recurring: recurring,
-            startDate,
-            endDate,
-        });
+        try {
+            await addBudget({
+                categoryId: selectedCategoryId,
+                limitAmount: numAmount,
+                recurring: recurring,
+                startDate,
+                endDate,
+            });
+            resetForm();
+            onClose();
+        } catch (error) {
+            alert('Failed to save budget. Please try again.');
+        }
 
-        resetForm();
-        onClose();
     };
 
     // UI
