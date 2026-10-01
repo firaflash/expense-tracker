@@ -83,7 +83,7 @@ export default function AddTransactionModal({ visible, onClose, defaultType, }: 
     );
 
     // SUBMIT
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
 
         const numAmount = parseFloat(amount);
         // Validate amount
@@ -97,8 +97,7 @@ export default function AddTransactionModal({ visible, onClose, defaultType, }: 
             return;
         }
         const now = new Date().toISOString();
-        const newTransaction: Transaction = {
-            id: `txn-${Date.now()}`,
+        const newTransaction = {
             amount: numAmount,
             type,
             categoryId: selectedCategoryId,
@@ -107,13 +106,18 @@ export default function AddTransactionModal({ visible, onClose, defaultType, }: 
                 : 'wallet-1',
             date: now,
             note: note.trim() || undefined,
-            createdAt: now,
             status: 'CLEARED',
         };
 
         // Add transaction to Zustand.
         // HomeScreen automatically receives the new state.
-        addTransaction(newTransaction);
+        try {
+            await (newTransaction);
+            onClose();
+        } catch (error) {
+            alert('Failed to save transaction. Please try again.');
+        }
+
         // Close modal.
         onClose();
     };

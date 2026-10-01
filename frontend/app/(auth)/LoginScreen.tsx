@@ -51,7 +51,11 @@ export default function LoginScreen({ navigation }: Props) {
     try {
       // This calls the real backend API
       await login(email, passwords);
+      // Fetch the user's real data from the backend
+      await useMoniVoStore.getState().fetchTransactions();
+      await useMoniVoStore.getState().fetchBudgets();
       // If successful, AppNavigator will automatically switch to AppTabNavigator
+
     } catch (error: any) {
       // Extract error message from backend response
       const message =
