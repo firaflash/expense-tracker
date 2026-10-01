@@ -1,26 +1,31 @@
-import { mongoose } from 'mongoose'
-import dotenv from 'dotenv'
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
 dotenv.config();
 
-const connectDB  = async () =>{
-    try{
-        const URL =  process.env.MONGODB_URI;
-        console.log(URL)
-        if(!URL){
-            throw('No Connection URL')
-            return
-        }
-        const conn = await mongoose.connect(URL);
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
+const connectDB = async () => {
+  try {
+    const URL = process.env.MONGODB_URI;
 
-
-    }catch(e){
-        return {
-            status: 404,
-            message: e.message,
-            descripition: "Error With Connection Creation"
-        }
+    if (!URL) {
+      throw new Error("MONGODB_URI is not defined");
     }
-}
+
+    console.log("🔌 Connecting to MongoDB...");
+
+    const conn = await mongoose.connect(URL);
+
+    console.log(
+      `✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`
+    );
+
+    console.log("Mongoose readyState:", mongoose.connection.readyState);
+
+    return conn;
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error);
+    throw error;
+  }
+};
 
 export default connectDB;
