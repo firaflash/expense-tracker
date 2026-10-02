@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 // 4. Paste it below, making sure to keep "/api" at the very end.
 // Note: The ngrok URL changes EVERY TIME you restart it. You must update this line each time!
 // Do NOT use 'localhost' because the phone emulator treats that as itself.
-const API_BASE_URL =  "https://economic-bankable-imperial.ngrok-free.dev/api"
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://xxxx.ngrok-free.dev/api'; // Replace with your ngrok URL
 
 
 const api = axios.create({

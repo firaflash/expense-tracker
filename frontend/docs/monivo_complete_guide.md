@@ -5,6 +5,7 @@
 ---
 
 ## Table of Contents
+
 1. [🗺️ The Big Picture — How Everything Connects](#-the-big-picture--how-everything-connects)
 2. [📦 What is npm, npx, node_modules?](#-what-is-npm-npx-node_modules)
 3. [🚀 Step-by-Step: How to Start the Project](#-step-by-step-how-to-start-the-project)
@@ -14,7 +15,7 @@
 7. [📱 Frontend Deep Dive — Every Part Explained](#-frontend-deep-dive--every-part-explained)
 8. [🌐 ngrok — Connecting Phone to Your Computer](#-ngrok--connecting-phone-to-your-computer)
 9. [⚡ The Complete Request Journey](#-the-complete-request-journey)
-10. [🐛 Common Issues & Fixes](#-common-issues--fixes)
+10. [🐛 Common Issues &amp; Fixes](#-common-issues--fixes)
 
 ---
 
@@ -22,6 +23,7 @@
 
 ```mermaid
 graph TD
+
     A["📱 Phone / Emulator<br/>React Native + Expo"] -->|"HTTP requests via axios"| B["🌐 ngrok Tunnel<br/>https://xxxx.ngrok-free.dev"]
     B -->|"Forwards to"| C["🖥️ Backend Server<br/>Node.js + Express<br/>localhost:5000"]
     C -->|"Mongoose queries"| D["🍃 MongoDB Atlas<br/>Cloud Database<br/>Stores users, data"]
@@ -35,7 +37,9 @@ graph TD
     style D fill:#27AE60,color:#fff
 ```
 
+
 **In plain English:**
+
 1. Your **phone app** (React Native) needs data — so it sends a request
 2. That request goes through **ngrok** (a tunnel that makes your local computer accessible from the internet)
 3. ngrok forwards it to your **backend** (Express server running on your laptop)
@@ -47,6 +51,7 @@ graph TD
 ## 📦 What is npm, npx, node_modules?
 
 ### npm (Node Package Manager)
+
 Think of **npm** as an **app store for code libraries**. Instead of writing everything from scratch, you install packages that other developers made.
 
 ```bash
@@ -61,6 +66,7 @@ npm run dev
 ```
 
 ### package.json — The Recipe Book
+
 This file lists everything your project needs. Here's your [backend/package.json](file:///home/Sami/Documents/expense-tracker/backend/package.json) explained:
 
 ```json
@@ -87,15 +93,19 @@ This file lists everything your project needs. Here's your [backend/package.json
 ```
 
 ### node_modules — The Warehouse
+
 When you run `npm install`, npm downloads all the packages into a `node_modules/` folder. This folder is HUGE (thousands of files) — that's why it's in `.gitignore` and never uploaded to GitHub.
 
 ### npx — Run Without Installing
+
 `npx` lets you run a package without permanently installing it:
+
 ```bash
 npx expo start    # Runs Expo without installing it globally
 ```
 
 ### package-lock.json — The Exact Recipe
+
 While `package.json` says "I need express version 5 or higher", `package-lock.json` says "I need express version 5.2.1 exactly, and all its sub-dependencies at exact versions". This ensures everyone on the team gets identical packages.
 
 ---
@@ -103,7 +113,9 @@ While `package.json` says "I need express version 5 or higher", `package-lock.js
 ## 🚀 Step-by-Step: How to Start the Project
 
 ### Prerequisites
+
 Make sure you have installed:
+
 - **Node.js** (comes with npm) — [nodejs.org](https://nodejs.org)
 - **Expo Go app** on your phone — from App Store / Play Store
 - **ngrok** — `npm install -g ngrok` (and sign up at [ngrok.com](https://ngrok.com))
@@ -129,10 +141,12 @@ npm run dev
 
 > [!IMPORTANT]
 > You should see:
+>
 > ```
 > ✅ MongoDB Connected Successfully
 > 🚀 Server running on port 5000
 > ```
+>
 > If you see a MongoDB error, check your internet connection (MongoDB Atlas is in the cloud).
 
 ### Step 2: Start ngrok (in a NEW terminal)
@@ -144,6 +158,7 @@ ngrok http 5000
 ```
 
 You'll see output like:
+
 ```
 Forwarding    https://a1b2c3d4.ngrok-free.dev -> http://localhost:5000
 ```
@@ -201,6 +216,7 @@ You'll see a QR code in the terminal.
 ## 🍃 MongoDB Atlas — Your Database in the Cloud
 
 ### What is MongoDB?
+
 MongoDB is a **NoSQL database** — instead of tables with rows and columns (like Excel/SQL), it stores data as **documents** (like JSON objects).
 
 ```
@@ -214,6 +230,7 @@ SQL Database (table):          MongoDB (document):
 ```
 
 ### MongoDB Atlas = MongoDB in the Cloud
+
 Instead of running MongoDB on your laptop, **Atlas** hosts it on remote servers. Your connection string in [.env.example](file:///home/Sami/Documents/expense-tracker/backend/.env.example) connects to it:
 
 ```
@@ -233,6 +250,7 @@ mongodb+srv://samuelmifta_db_user:PASSWORD@expense-tracker-cluster.sjahwyy.mongo
 ### Mongoose — The Translator
 
 Your backend doesn't talk to MongoDB directly. It uses **Mongoose**, a library that:
+
 - Defines **schemas** (what shape the data should be)
 - Provides **methods** (`.find()`, `.create()`, `.findOne()`)
 - Adds **validation** (required fields, unique emails)
@@ -363,6 +381,7 @@ export default router;
 This is where the actual logic lives. Let's break down each function:
 
 **`generateToken(id)`** — Creates a JWT token:
+
 ```javascript
 const generateToken = (id) => {
   return jwt.sign(          // Create a signed token
@@ -374,6 +393,7 @@ const generateToken = (id) => {
 ```
 
 **`registerUser`** — Creates a new account:
+
 ```javascript
 export const registerUser = async (req, res) => {
   // 1. Pull name, email, password from the request body
@@ -403,6 +423,7 @@ export const registerUser = async (req, res) => {
 ```
 
 **`loginUser`** — Verifies credentials:
+
 ```javascript
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -484,14 +505,14 @@ export const protect = async (req, res, next) => {
     try {
       // Extract the token (split "Bearer abc123" → ["Bearer", "abc123"])
       token = req.headers.authorization.split(" ")[1];
-      
+    
       // Verify the token — if invalid/expired, this throws an error
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+    
       // Find the user by the ID stored in the token
       // .select("-password") means "give me everything EXCEPT the password"
       req.user = await User.findById(decoded.id).select("-password");
-      
+    
       // Token is valid! Continue to the next function (the route handler)
       next();
     } catch (error) {
@@ -692,6 +713,7 @@ graph TD
 ```
 
 **How screens use the store:**
+
 ```typescript
 // In any screen component:
 import useMoniVoStore from '../../store/useMoniVoStore';
@@ -745,6 +767,7 @@ api.interceptors.request.use(
 ## 🌐 ngrok — Connecting Phone to Your Computer
 
 ### The Problem
+
 Your backend runs on `localhost:5000`. But `localhost` means "this device." When your phone tries `localhost`, it's talking to **itself**, not your computer!
 
 ### The Solution: ngrok
@@ -816,34 +839,39 @@ STEP 9: 📱 Back on the phone
 ## 🐛 Common Issues & Fixes
 
 ### ❌ "Network Error" on the phone
-| Cause | Fix |
-|-------|-----|
-| ngrok not running | Open a terminal, run `ngrok http 5000` |
-| ngrok URL changed | Copy the new URL → paste in `api.ts` |
-| Backend not running | Open a terminal, `cd backend`, `npm run dev` |
-| Old ngrok URL in api.ts | Every ngrok restart = new URL! |
+
+| Cause                   | Fix                                             |
+| ----------------------- | ----------------------------------------------- |
+| ngrok not running       | Open a terminal, run`ngrok http 5000`         |
+| ngrok URL changed       | Copy the new URL → paste in`api.ts`          |
+| Backend not running     | Open a terminal,`cd backend`, `npm run dev` |
+| Old ngrok URL in api.ts | Every ngrok restart = new URL!                  |
 
 ### ❌ "MongoDB Connection Error"
-| Cause | Fix |
-|-------|-----|
-| No internet | Connect to WiFi |
-| Wrong URI | Check `.env` has the correct MongoDB connection string |
-| IP not whitelisted | In Atlas → Network Access → Add `0.0.0.0/0` (allows all IPs) |
+
+| Cause              | Fix                                                             |
+| ------------------ | --------------------------------------------------------------- |
+| No internet        | Connect to WiFi                                                 |
+| Wrong URI          | Check`.env` has the correct MongoDB connection string         |
+| IP not whitelisted | In Atlas → Network Access → Add`0.0.0.0/0` (allows all IPs) |
 
 ### ❌ "Cannot find module"
+
 ```bash
 # Forgot to install? Run this in the problem directory:
 npm install
 ```
 
 ### ❌ `.env` not working
-| Cause | Fix |
-|-------|-----|
-| File named `.env.example` | Copy it: `cp .env.example .env` |
-| Wrong variable name | Your `server.js` uses `MONGO_URI` but `.env.example` has `MONGODB_URI` — they must match! |
+
+| Cause                      | Fix                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| File named`.env.example` | Copy it:`cp .env.example .env`                                                                  |
+| Wrong variable name        | Your`server.js` uses `MONGO_URI` but `.env.example` has `MONGODB_URI` — they must match! |
 
 > [!WARNING]
 > **Your `.env.example` has `MONGODB_URI` but `server.js` uses `process.env.MONGO_URI`!** This is a bug — they don't match. You need to either:
+>
 > - Change `.env` to use `MONGO_URI=mongodb+srv://...`, OR
 > - Change `server.js` line 10 to `process.env.MONGODB_URI`
 >
@@ -853,27 +881,28 @@ npm install
 
 ## 🔑 Key Concepts Cheat Sheet
 
-| Term | What It Is | Analogy |
-|------|-----------|---------|
-| **npm** | Package manager | App Store for code |
-| **npx** | Run a package once | "Try before you buy" |
-| **Express** | Web server framework | A waiter taking orders |
-| **Mongoose** | MongoDB helper | A translator between JS and MongoDB |
-| **JWT** | Login token | Concert wristband |
-| **bcrypt** | Password hasher | A shredder — can't un-shred |
-| **CORS** | Cross-origin permission | "I accept foreign visitors" |
-| **Middleware** | Code that runs before routes | Security guard at the door |
-| **Zustand** | State management | The app's shared brain |
-| **SecureStore** | Encrypted phone storage | A safe on your phone |
-| **ngrok** | Local tunnel to internet | A secret passage from inside to outside |
-| **Axios** | HTTP client | A messenger who carries requests |
-| **dotenv** | Reads .env files | Reading the recipe's secret ingredients |
-| **nodemon** | Auto-restart on save | A watchful assistant |
+| Term                  | What It Is                   | Analogy                                 |
+| --------------------- | ---------------------------- | --------------------------------------- |
+| **npm**         | Package manager              | App Store for code                      |
+| **npx**         | Run a package once           | "Try before you buy"                    |
+| **Express**     | Web server framework         | A waiter taking orders                  |
+| **Mongoose**    | MongoDB helper               | A translator between JS and MongoDB     |
+| **JWT**         | Login token                  | Concert wristband                       |
+| **bcrypt**      | Password hasher              | A shredder — can't un-shred            |
+| **CORS**        | Cross-origin permission      | "I accept foreign visitors"             |
+| **Middleware**  | Code that runs before routes | Security guard at the door              |
+| **Zustand**     | State management             | The app's shared brain                  |
+| **SecureStore** | Encrypted phone storage      | A safe on your phone                    |
+| **ngrok**       | Local tunnel to internet     | A secret passage from inside to outside |
+| **Axios**       | HTTP client                  | A messenger who carries requests        |
+| **dotenv**      | Reads .env files             | Reading the recipe's secret ingredients |
+| **nodemon**     | Auto-restart on save         | A watchful assistant                    |
 
 ---
 
 > [!TIP]
 > **Next steps to continue learning:**
+>
 > 1. Fix the `MONGO_URI` vs `MONGODB_URI` bug (great first task!)
 > 2. Try registering a user, then check MongoDB Atlas to see the document
 > 3. Add an `Expense` model to the backend (similar to `User.js`)
